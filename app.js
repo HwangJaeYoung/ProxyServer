@@ -10,12 +10,13 @@ var mysql = require('mysql');
 
 var app = express( );
 
+/*
 // connection to database
 var client = mysql.createConnection({
     user : 'root',
     password : 'blossom',
     database : 'blossom'
-});
+}); */
 
 app.use(app.router);
 
@@ -48,7 +49,24 @@ app.get('/FiwareEntity', function(request, response) {
             }
     }, function (error, responseAnotherServer, body) {
         if (!error && responseAnotherServer.statusCode == 200) {
-            console.log("data %j", body);
+            var a = body.contextResponses
+            var b = a[0].contextElement;
+            var c = b.attributes;
+
+
+            var entityID = b.id;
+            var type = b.type;
+
+            console.log(entityID + ' : ' + type);
+            for(var i = 0; i < c.length; i++) {
+                if(c[i].name == 'TimeInstant') {
+
+                } else if (c[i].name == 'att_name') {
+
+                } else {
+                    console.log(c[i].name + ' : ' + c[i].type + ' : ' + c[i].value);
+                }
+            }
         }
     });
     response.send('<h1> Good </h1>')
