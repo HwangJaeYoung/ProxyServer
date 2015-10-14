@@ -55,7 +55,7 @@ exports.getFiwareInfo = function(response, entityName){
             }
 
             // ********************** AE에 등록을 시작한다. ***************************
-            requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt',
+            requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt',
                 method : 'POST',
                 json : true,
                 headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
@@ -67,16 +67,12 @@ exports.getFiwareInfo = function(response, entityName){
                     'content-type' : 'application/vnd.onem2m-res+json; ty=2',
                     'nmtype' : 'long'
                 },
-                body: { // AE를 등록할때 필요한 payload json 구조를 작성한다.
-                    "m2m:AE": {
-                        "App-ID": "0.2.481.2.0001.001.000111"
-                    }
+                body : { // NGSI10에 따른 payload이 구성이다.(queryContext)
+                    'App-ID': "0.2.481.2.0001.001.000111"
                 }
             }, function(error, AECreateResponse, body) {
-
-                console.log('in container');
                 // ********************** Container에 등록을 시작한다. ***************************
-                requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/FiwareDevice',
+                requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt/FiwareDevice',
                     method : 'POST',
                     json : true,
                     headers : { // Mobius에 Container 등록을 위한 기본 헤더 구조
@@ -89,15 +85,13 @@ exports.getFiwareInfo = function(response, entityName){
                         'nmtype' : 'long'
                     },
                     body: { // Container를 등록할때 필요한 payload json 구조를 작성한다.
-                        "m2m:container": {
-                            "containerType": "heartbeat",
-                            "heartbeatPeriod": "300"
-                        }
+                        "containerType": "heartbeat",
+                        "heartbeatPeriod": "300"
                     }
                 }, function(error, containerCreateResponse, body) {
                     console.log('in contentInstance');
                     // ********************** containerInstance에 등록을 시작한다. ***************************.
-                    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/FiwareDevice/'+ attributeName,
+                    requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt/FiwareDevice/'+ attributeName,
                         method : 'POST',
                         json : true,
                         headers : { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
@@ -110,12 +104,12 @@ exports.getFiwareInfo = function(response, entityName){
                             'nmtype' : 'long'
                         },
                         body: { // contentInstance를 등록할때 필요한 payload json 구조를 작성한다.
-                            "m2m:contentInstance": {
-                                "contentInfo": type,
-                                "content": value
-                            }
+                            "contentInfo": type,
+                            "content": value
                         }
                     }, function(error, contentInstanceResponse, body) {
+                        console.log(typeof(contentInstanceResponse));
+                        console.log(contentInstanceResponse);
                         if(contentInstanceResponse.statusCode == 201) {
                             console.log('AE, Container, contentInstance crease success!!');
                             response.status(201).send();
