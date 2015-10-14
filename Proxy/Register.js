@@ -28,8 +28,8 @@ exports.getFiwareInfo = function(response, entityName){
                     }
                 ]
             }
-        }, function (error, responseAnotherServer, body) {
-        if (!error && responseAnotherServer.statusCode == 200) {
+        }, function (error, fiwareResponse, body) {
+        if (!error && fiwareResponse.statusCode == 200) {
             // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
             var contextResponses = body.contextResponses
             var contextElement = contextResponses[0].contextElement;
@@ -63,70 +63,64 @@ exports.getFiwareInfo = function(response, entityName){
                     'locale' : 'ko',
                     'X-M2M-RI' : '12345',
                     'X-M2M-Origin' : 'Origin',
-                    'X-M2M-NM' : '' + attributeName, // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
-                    'content-type' : 'application/json',
+                    'X-M2M-NM' : 'FiwareDevice',
+                    'content-type' : 'application/vnd.onem2m-res+json; ty=2',
                     'nmtype' : 'long'
                 },
-                body: { // AE를 등록할때 필요한 payload xml 구조를 작성한다.
-                    'entities': [
-                        {
-                            "type": "thing",
-                            "isPattern": "false",
-                            "id": "" + entityName
-                        }
-                    ]
+                body: { // AE를 등록할때 필요한 payload json 구조를 작성한다.
+                    "m2m:AE": {
+                        "App-ID": "0.2.481.2.0001.001.000111"
+                    }
                 }
-            }, function(error, responseAnotherServer, body) {
+            }, function(error, AECreateResponse, body) {
+
+                console.log('in container');
                 // ********************** Container에 등록을 시작한다. ***************************
-                requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt',
+                requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/FiwareDevice',
                     method : 'POST',
                     json : true,
-                    headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
+                    headers : { // Mobius에 Container 등록을 위한 기본 헤더 구조
                         'Accept' : 'application/json',
                         'locale' : 'ko',
                         'X-M2M-RI' : '12345',
                         'X-M2M-Origin' : 'Origin',
                         'X-M2M-NM' : '' + attributeName, // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
-                        'content-type' : 'application/json',
+                        'content-type' : 'application/vnd.onem2m-res+json; ty=3',
                         'nmtype' : 'long'
                     },
-                    body: { // AE를 등록할때 필요한 payload xml 구조를 작성한다.
-                        'entities': [
-                            {
-                                "type": "thing",
-                                "isPattern": "false",
-                                "id": "" + entityName
-                            }
-                        ]
+                    body: { // Container를 등록할때 필요한 payload json 구조를 작성한다.
+                        "m2m:container": {
+                            "containerType": "heartbeat",
+                            "heartbeatPeriod": "300"
+                        }
                     }
-                }, function(error, responseAnotherServer, body) {
+                }, function(error, containerCreateResponse, body) {
+                    console.log('in contentInstance');
                     // ********************** containerInstance에 등록을 시작한다. ***************************.
-                    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt',
+                    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/FiwareDevice/'+ attributeName,
                         method : 'POST',
                         json : true,
-                        headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
+                        headers : { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
                             'Accept' : 'application/json',
                             'locale' : 'ko',
                             'X-M2M-RI' : '12345',
                             'X-M2M-Origin' : 'Origin',
-                            'X-M2M-NM' : '' + attributeName, // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
-                            'content-type' : 'application/json',
+                            'X-M2M-NM' : 'deviceinfo', // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
+                            'content-type' : 'application/vnd.onem2m-res+json; ty=4',
                             'nmtype' : 'long'
                         },
-                        body: { // AE를 등록할때 필요한 payload xml 구조를 작성한다.
-                            'entities': [
-                                {
-                                    "type": "thing",
-                                    "isPattern": "false",
-                                    "id": "" + entityName
-                                }
-                            ]
+                        body: { // contentInstance를 등록할때 필요한 payload json 구조를 작성한다.
+                            "m2m:contentInstance": {
+                                "contentInfo": type,
+                                "content": value
+                            }
                         }
-                    }, function(error, responseAnotherServer, body) {
-                        if(responseAnotherServer.statusCode == '201') {
-                            // 최종적인 등록 마무리를 한다.
-
-                        }
+                    }, function(error, contentInstanceResponse, body) {
+                        if(contentInstanceResponse.statusCode == 201) {
+                            console.log('AE, Container, contentInstance crease success!!');
+                            response.status(201).send();
+                        } else
+                            response.status(404).send();
                     });
                 });
             });
