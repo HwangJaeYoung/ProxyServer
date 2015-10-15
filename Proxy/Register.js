@@ -51,7 +51,7 @@ var requestFuntciton = function(response, attributeName, type, value) {
                 "content": value
             }
         }, function(error, contentInstanceResponse, body) {
-            if(contentInstanceResponse.statusCode == 201) {
+            if(contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
                 console.log('AE, Container, contentInstance crease success!!');
                 response.status(201).send();
             } else
@@ -122,17 +122,20 @@ exports.getFiwareInfo = function(response, entityName){
             }, function(error, AECreateResponse, body) {
                 var registerCount = 0;
 
+                // attributes를 동시에 저장하기 위한 동기화가 필요하다.
                 async.whilst(function( ) {
-                        return registerCount < attributeName.length; // 탈출조건
+                        // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
+                        return registerCount < attributeName.length;
                     },
 
-                    function (dummyCallback) {
+                    function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
                         console.log('in async');
+                        // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
                         requestFuntciton(response, attributeName[registerCount], type[registerCount], value[registerCount]);
                         registerCount++;
-                        setTimeout(dummyCallback, 1000);
+                        setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
                     },
-                    function (err) {
+                    function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
                         console.log("End");
                     }
                 )
