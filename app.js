@@ -6,6 +6,7 @@
 var http = require('http');
 var express = require('express');
 var register = require('./Proxy/Register');
+var update = require('./Proxy/Subscription');
 
 var app = express( );
 
@@ -25,6 +26,10 @@ app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
     var entityName = request.params.entityName; // Mobius에서 등록하고 싶은 Device의 EntityID를 전달한다.
     // Fiware의 정보를 가져와서 AE, Container, contentInstance를 구성하여 등록한다.
     register.getFiwareInfo(response, entityName);
+});
+
+app.post('/FiwareNotificationEndpoint', function(request, reponse) {
+
 });
 
 // Server start!!
