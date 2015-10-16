@@ -103,42 +103,75 @@ exports.getFiwareInfo = function(response, entityName){
                 }
             }
 
-            // ********************** AE에 등록을 시작한다. ***************************
-            requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt',
+            requestToAnotherServer( { url : 'http://http://193.48.247.246:1026/v1/subscribeContext',
                 method : 'POST',
                 json : true,
-                headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
+                headers : { // fiware접근에 필요한 기본 헤더의 구조
+                    'content-type' : 'application/json',
                     'Accept' : 'application/json',
-                    'locale' : 'ko',
-                    'X-M2M-RI' : '12345',
-                    'X-M2M-Origin' : 'Origin',
-                    'X-M2M-NM' : AEName,
-                    'content-type' : 'application/vnd.onem2m-res+json; ty=2',
-                    'nmtype' : 'long'
+                    'Fiware-Service' : fiwareService,
+                    'Fiware-ServicePat2h' : fiwareServicePath
                 },
-                body : { // NGSI10에 따른 payload이 구성이다.(queryContext)
-                    'App-ID': "0.2.481.2.0001.001.000111"
+                body: { // subscription를 등록할때 필요한 payload json 구조를 작성한다.
+                    "entities": [
+                        {
+                            "type": "thing",
+                            "isPattern": "false",
+                            "id": "" + entityName
+                        }
+                    ],
+                    "attributes" : [
+                        attributeName
+                    ],
+                    "reference" : "http://ProxyServer/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
+                    "duration" : "P1M",
+                    "notifyConditions" : [
+                        {
+                            "type" : "ONTIMEINTERVAL",
+                            "condValues" : [
+                                "PT10S"
+                            ]
+                        }
+                    ]
                 }
-            }, function(error, AECreateResponse, body) {
-                var registerCount = 0;
-
-                // attributes를 동시에 저장하기 위한 동기화가 필요하다.
-                async.whilst(function( ) {
-                        // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
-                        return registerCount < attributeName.length;
+            }, function(error, containerCreateResponse, body) {
+                // ********************** AE에 등록을 시작한다. ***************************
+                requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt',
+                    method : 'POST',
+                    json : true,
+                    headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
+                        'Accept' : 'application/json',
+                        'locale' : 'ko',
+                        'X-M2M-RI' : '12345',
+                        'X-M2M-Origin' : 'Origin',
+                        'X-M2M-NM' : AEName,
+                        'content-type' : 'application/vnd.onem2m-res+json; ty=2',
+                        'nmtype' : 'long'
                     },
-
-                    function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
-                        console.log('in async');
-                        // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
-                        requestFuntciton(response, attributeName[registerCount], type[registerCount], value[registerCount]);
-                        registerCount++;
-                        setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
-                    },
-                    function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
-                        console.log("End");
+                    body : { // NGSI10에 따른 payload이 구성이다.(queryContext)
+                        'App-ID': "0.2.481.2.0001.001.000111"
                     }
-                )
+                }, function(error, AECreateResponse, body) {
+                    var registerCount = 0;
+
+                    // attributes를 동시에 저장하기 위한 동기화가 필요하다.
+                    async.whilst(function( ) {
+                            // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
+                            return registerCount < attributeName.length;
+                        },
+
+                        function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
+                            console.log('in async');
+                            // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
+                            requestFuntciton(response, attributeName[registerCount], type[registerCount], value[registerCount]);
+                            registerCount++;
+                            setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
+                        },
+                        function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
+                            console.log("End");
+                        }
+                    )
+                });
             });
         }
     });

@@ -8,7 +8,7 @@ var async = require('async');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
-var updateFuntciton = function(response, attributeName, type, value) {
+var updateFuntciton = function(response, AEName, attributeName, type, value) {
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
     // ********************** 1. contentInstance삭제를 시작한다. ***************************
     requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt/' + AEName + '/' + attributeName + 'deviceinfo',
@@ -80,7 +80,7 @@ exports.updateFiwareInfo = function(request, response){
         function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
             console.log('in async');
             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
-            updateFuntciton(response, attributeName[registerCount], type[registerCount], value[registerCount]);
+            updateFuntciton(response, AEName, attributeName[registerCount], type[registerCount], value[registerCount]);
             registerCount++;
             setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
         },
