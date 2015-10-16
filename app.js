@@ -16,11 +16,6 @@ global.fiwareServicePath = '/egmul20path';
 
 app.use(app.router);
 
-// Register Fiware Device to Mobius
-app.get('/FiwareDeviceCreate', function(request, response) {
-
-});
-
 //  Register Fiware Device infomation
 app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
     var entityName = request.params.entityName; // Mobius에서 등록하고 싶은 Device의 EntityID를 전달한다.
@@ -28,8 +23,9 @@ app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
     register.getFiwareInfo(response, entityName);
 });
 
-app.post('/FiwareNotificationEndpoint', function(request, reponse) {
-
+// Fiware Subscription endpoint
+app.post('/FiwareNotificationEndpoint', function(request, response) {
+    update.updateFiwareInfo(request, response);
 });
 
 // Server start!!
