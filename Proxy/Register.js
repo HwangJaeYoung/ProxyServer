@@ -71,7 +71,7 @@ exports.getFiwareInfo = function(response, entityName){
             'content-type' : 'application/json',
             'Accept' : 'application/json',
             'Fiware-Service' : fiwareService,
-            'Fiware-ServicePat2h' : fiwareServicePath
+            'Fiware-ServicePath' : fiwareServicePath
         },
         body: { // NGSI10에 따른 payload이 구성이다.(queryContext)
             'entities': [
@@ -111,7 +111,7 @@ exports.getFiwareInfo = function(response, entityName){
                     'content-type' : 'application/json',
                     'Accept' : 'application/json',
                     'Fiware-Service' : fiwareService,
-                    'Fiware-ServicePat2h' : fiwareServicePath
+                    'Fiware-ServicePath' : fiwareServicePath
                 },
                 body: { // subscription를 등록할때 필요한 payload json 구조를 작성한다.
                     "entities": [
