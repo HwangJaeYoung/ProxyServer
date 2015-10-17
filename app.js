@@ -11,9 +11,10 @@ var update = require('./Proxy/Subscription');
 
 var app = express( );
 
-app.use(app.router);
+// bodyPaerser 위치 안지키면 post parsing이 안된다.....;;
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json( ));
+app.use(app.router);
 
 // 접근 하려고 하는 FIWARE서비스의 위치를 정의한다.
 global.fiwareService = 'egmul20';

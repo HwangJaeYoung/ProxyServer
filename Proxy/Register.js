@@ -15,7 +15,7 @@ var requestFunction = function(response, attributeName, type, value) {
 
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
     // ********************** Container에 등록을 시작한다. ***************************s
-    requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt/' + AEName,
+    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + AEName,
         method : 'POST',
         json : true,
         headers : { // Mobius에 Container 등록을 위한 기본 헤더 구조
@@ -34,7 +34,7 @@ var requestFunction = function(response, attributeName, type, value) {
     }, function(error, containerCreateResponse, body) {
         console.log('in contentInstance');
         // ********************** containerInstance에 등록을 시작한다. ***************************.
-        requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt/' + AEName + '/'+ attributeName,
+        requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + AEName + '/'+ attributeName,
             method : 'POST',
             json : true,
             headers : { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
@@ -104,7 +104,7 @@ exports.getFiwareInfo = function(response, entityName){
                 }
             }
 
-            requestToAnotherServer( { url : 'http://http://193.48.247.246:1026/v1/subscribeContext',
+            requestToAnotherServer( { url : 'http://193.48.247.246:1026/v1/subscribeContext',
                 method : 'POST',
                 json : true,
                 headers : { // fiware접근에 필요한 기본 헤더의 구조
@@ -122,22 +122,22 @@ exports.getFiwareInfo = function(response, entityName){
                         }
                     ],
                     "attributes" : [
-                        attributeName
+                        "temperature"
                     ],
-                    "reference" : "http://ProxyServer/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
+                    "reference" : "http://54.65.179.169/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
                     "duration" : "P1M",
                     "notifyConditions" : [
                         {
                             "type" : "ONTIMEINTERVAL",
                             "condValues" : [
-                                "PT10S"
+                                "PT15S"
                             ]
                         }
                     ]
                 }
             }, function(error, containerCreateResponse, body) {
                 // ********************** AE에 등록을 시작한다. ***************************
-                requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt',
+                requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt',
                     method : 'POST',
                     json : true,
                     headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
