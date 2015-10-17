@@ -11,12 +11,12 @@ var requestToAnotherServer = require('request');
 var updateFunction = function(response, entityName, attributeName, type, value) {
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
     // ********************** 1. contentInstance삭제를 시작한다. ***************************
-    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/' + attributeName + 'deviceinfo',
+    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/' + attributeName + '/' + 'deviceinfo',
         method : 'DELETE',
         headers : { // Mobius에 contentInstance삭제를 위한 기본 헤더 구조
             'Accept' : 'application/xml',
             'X-M2M-RI' : '12345',
-            'X-M2M-Origin' : 'Origin',
+            'X-M2M-Origin' : 'Origin'
         }
     }, function(error, containerCreateResponse, body) {
         console.log('in contentInstance');
@@ -40,7 +40,7 @@ var updateFunction = function(response, entityName, attributeName, type, value) 
             }
         }, function(error, contentInstanceResponse, body) {
             if(contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
-                console.log('AE, Container, contentInstance crease success!!');
+                console.log('AE, Container, contentInstance create success!!');
                 response.status(201).send();
             } else
                 response.status(404).send();
