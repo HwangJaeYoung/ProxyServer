@@ -121,9 +121,7 @@ exports.getFiwareInfo = function(response, entityName){
                             "id": "" + AEName
                         }
                     ],
-                    "attributes" : [
-                        "temperature"
-                    ],
+                    "attributes" : attributeName,
                     "reference" : "http://54.65.62.99:62590/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
                     "duration" : "P1M",
                     "notifyConditions" : [
