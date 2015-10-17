@@ -8,10 +8,10 @@ var requestToAnotherServer = require('request');
 var async = require('async');
 var dbConfig = require('./DatabaseConfig');
 
-global.AEName = 'FiwareDevice'; // 공통적으로 사용하는 AE를 정의한다.
+global.AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 정의하기 위한 함수이다.
-var requestFuntciton = function(response, attributeName, type, value) {
+var requestFunction = function(response, attributeName, type, value) {
 
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
     // ********************** Container에 등록을 시작한다. ***************************s
@@ -62,6 +62,7 @@ var requestFuntciton = function(response, attributeName, type, value) {
 
 exports.getFiwareInfo = function(response, entityName){
 
+    AEName = entityName;
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
     requestToAnotherServer( { url : 'http://193.48.247.246:1026/v1/queryContext',
         method : 'POST',
@@ -77,7 +78,7 @@ exports.getFiwareInfo = function(response, entityName){
                 {
                     "type": "thing",
                     "isPattern": "false",
-                    "id": "" + entityName
+                    "id": "" + AEName
                 }
             ]
         }
@@ -117,7 +118,7 @@ exports.getFiwareInfo = function(response, entityName){
                         {
                             "type": "thing",
                             "isPattern": "false",
-                            "id": "" + entityName
+                            "id": "" + AEName
                         }
                     ],
                     "attributes" : [
@@ -163,7 +164,7 @@ exports.getFiwareInfo = function(response, entityName){
                         function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
                             console.log('in async');
                             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
-                            requestFuntciton(response, attributeName[registerCount], type[registerCount], value[registerCount]);
+                            requestFunction(response, attributeName[registerCount], type[registerCount], value[registerCount]);
                             registerCount++;
                             setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
                         },

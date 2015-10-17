@@ -8,7 +8,7 @@ var async = require('async');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
-var updateFuntciton = function(response, AEName, attributeName, type, value) {
+var updateFunction = function(response, attributeName, type, value) {
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
     // ********************** 1. contentInstance삭제를 시작한다. ***************************
     requestToAnotherServer( { url : 'http://210.107.239.106:7579/mobius-yt/' + AEName + '/' + attributeName + 'deviceinfo',
@@ -53,15 +53,12 @@ exports.updateFiwareInfo = function(request, response){
     var contextElement = contextResponses[0].contextElement;
     var attributes = contextElement.attributes;
 
-    var AEName;
     var attributeName = [], type = [], value = []; // 특정 attribute를 저장하기위한 배열
     var count = 0;
 
     for (var i = 0; i < attributes.length; i++) {
-        if (attributes[i].name == 'TimeInstant') {
+        if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name') {
             continue;
-        } else if(attributes[i].name == 'att_name') {
-            AEName = attributes[i].value; // AE Name을 미리 등록해 놓는다.
         } else {
             // 리소스 등록에 필요한 데이터 파싱
             attributeName[count] = attributes[i].name;
@@ -71,6 +68,7 @@ exports.updateFiwareInfo = function(request, response){
         }
     }
 
+    var registerCount = 0;
     // contentInstance의 업데이트를 시작한다. attribute가 여러개인 경우 동기화가 필요하다.
     async.whilst(function( ) {
             // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
@@ -80,7 +78,7 @@ exports.updateFiwareInfo = function(request, response){
         function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
             console.log('in async');
             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
-            updateFuntciton(response, AEName, attributeName[registerCount], type[registerCount], value[registerCount]);
+            updateFunction(response, attributeName[registerCount], type[registerCount], value[registerCount]);
             registerCount++;
             setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
         },
