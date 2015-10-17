@@ -50,6 +50,8 @@ var updateFunction = function(response, entityName, attributeName, type, value) 
 
 exports.updateFiwareInfo = function(request, response){
     // Fiware에서 전달한 정보를 파싱한다. (attribute의 데이터를 가지고 온다.)
+
+    console.log('subscriptionId : ' + request.body.subscriptionId);
     var contextResponses = request.body.contextResponses
     var contextElement = contextResponses[0].contextElement;
     var entityName = contextElement.id;
