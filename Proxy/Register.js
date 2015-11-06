@@ -122,7 +122,7 @@ exports.getFiwareInfo = function(response, entityName){
                         }
                     ],
                     "attributes" : attributeName,
-                    "reference" : "http://54.65.62.99:62590/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
+                    "reference" : "http://1.176.121.100:62590/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
                     "duration" : "P1M",
                     "notifyConditions" : [
                         {

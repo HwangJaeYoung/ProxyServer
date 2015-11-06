@@ -30,9 +30,12 @@ app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
 
 // Fiware Subscription endpoint
 app.post('/FiwareNotificationEndpoint', function(request, response) {
+    var startDate = new Date();
+    var startTime = parseInt(startDate.getMilliseconds());
+
     // ContextBroker가 전달한 JSON data를 가지고 contentInstance를 업데이트 한다.
     if(subscriptionChecking == true)
-        update.updateFiwareInfo(request, response);
+        update.updateFiwareInfo(request, response, startTime);
     else
         subscriptionChecking = true;
 });

@@ -8,7 +8,7 @@ var async = require('async');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
-var updateFunction = function(response, entityName, attributeName, type, value) {
+var updateFunction = function(response, entityName, attributeName, type, value, startTime) {
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
     // ********************** 1. contentInstance삭제를 시작한다. ***************************
     requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/' + attributeName + '/' + 'deviceinfo',
@@ -40,7 +40,17 @@ var updateFunction = function(response, entityName, attributeName, type, value) 
             }
         }, function(error, contentInstanceResponse, body) {
             if(contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
-                console.log('AE, Container, contentInstance create success!!');
+                console.log('contentInstance update success!!');
+
+                var endDate = new Date();
+                var endTime = parseInt(endDate.getMilliseconds());
+                var timeResult = endTime - startTime;
+                console.log('**************************************************');
+                console.log('startTime : ' + startTime);
+                console.log('endTIme : ' + endTime);
+                console.log('time : ' + timeResult);
+                console.log('**************************************************');
+
                 response.status(201).send();
             } else
                 response.status(404).send();
@@ -48,7 +58,7 @@ var updateFunction = function(response, entityName, attributeName, type, value) 
     });
 };
 
-exports.updateFiwareInfo = function(request, response){
+exports.updateFiwareInfo = function(request, response, startTime){
     // Fiware에서 전달한 정보를 파싱한다. (attribute의 데이터를 가지고 온다.)
 
     console.log('subscriptionId : ' + request.body.subscriptionId);
@@ -82,7 +92,7 @@ exports.updateFiwareInfo = function(request, response){
         function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
             console.log('in async');
             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
-            updateFunction(response, entityName, attributeName[registerCount], type[registerCount], value[registerCount]);
+            updateFunction(response, entityName, attributeName[registerCount], type[registerCount], value[registerCount], startTime);
             registerCount++;
             setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
         },
