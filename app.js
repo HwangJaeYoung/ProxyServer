@@ -5,6 +5,7 @@
 // extract the modules
 var http = require('http');
 var express = require('express');
+var HashMap = require('hashmap');
 var bodyParser = require('body-parser');
 var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
@@ -18,7 +19,8 @@ app.use(app.router);
 // 접근 하려고 하는 FIWARE서비스의 위치를 정의한다.
 global.fiwareService = 'egmul20';
 global.fiwareServicePath = '/egmul20path';
-global.subscriptionChecking = false;
+
+var map = new HashMap();
 
 //  Register Fiware Device infomation
 app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
@@ -31,7 +33,14 @@ app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
 app.post('/FiwareNotificationEndpoint', function(request, response) {
     var startDate = new Date();
     var startTime = parseInt(startDate.getMilliseconds());
-    update.updateFiwareInfo(request, response, startTime);
+
+    var subId = request.body.subscriptionId;
+
+    if(map.has(subId) == false) {
+        map.set(subId, true);
+    } else {
+        update.updateFiwareInfo(request, response, startTime);
+    }
 });
 
 // Server start!!

@@ -8,7 +8,7 @@ var requestToAnotherServer = require('request');
 var async = require('async');
 var dbConfig = require('./DatabaseConfig');
 
-var AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
+global.AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 정의하기 위한 함수이다.
 var requestFunction = function(response, attributeName, type, value) {
@@ -126,7 +126,7 @@ exports.getFiwareInfo = function(response, entityName){
                         {
                             "type" : "ONTIMEINTERVAL",
                             "condValues" : [
-                                "PT15S"
+                                "PT1S"
                             ]
                         }
                     ]
@@ -161,10 +161,7 @@ exports.getFiwareInfo = function(response, entityName){
                             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
                             requestFunction(response, attributeName[registerCount], type[registerCount], value[registerCount]);
                             registerCount++;
-                            setTimeout(iterateCallback, 0);
-                            /* setTimeout 자체는 1초가 지났기 떄문에 iterateCallback실행이 가능하나 내부에 있는
-                             함수(updateFunction)이 실행이 끝난상태가 아니기 때문에 끝날때 까지 기다린 후에 실행한다.
-                             */
+                            setTimeout(iterateCallback, 1000);
                         },
                         function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
                             console.log("End");

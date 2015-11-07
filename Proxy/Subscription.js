@@ -90,10 +90,7 @@ exports.updateFiwareInfo = function(request, response, startTime){
             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
             updateFunction(response, entityName, attributeName[registerCount], type[registerCount], value[registerCount], startTime);
             registerCount++;
-            setTimeout(iterateCallback, 0);
-            /* setTimeout 자체는 1초가 지났기 떄문에 iterateCallback실행이 가능하나 내부에 있는
-               함수(updateFunction)이 실행이 끝난상태가 아니기 때문에 끝날때 까지 기다린 후에 실행한다.
-            */
+            setTimeout(iterateCallback, 1000);
         },
         function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
             console.log("End");
