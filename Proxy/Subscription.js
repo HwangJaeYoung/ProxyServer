@@ -1,5 +1,5 @@
 /**
- * Created by Blossom on 2015-10-14.
+ * Created by HwangJaeYoung on 2015-10-14.
  */
 
 // extract the modules
@@ -10,7 +10,7 @@ var requestToAnotherServer = require('request');
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
 var updateFunction = function(response, entityName, attributeName, type, value, startTime) {
     console.log('values : ' + attributeName + ', ' + type + ', ' + value);
-    // ********************** 1. contentInstance삭제를 시작한다. ***************************
+    // ********************** contentInstance삭제를 시작한다. ***************************
     requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/' + attributeName + '/' + 'deviceinfo',
         method : 'DELETE',
         headers : { // Mobius에 contentInstance삭제를 위한 기본 헤더 구조
@@ -20,8 +20,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
         }
     }, function(error, containerCreateResponse, body) {
         console.log('in contentInstance');
-        console.log(containerCreateResponse.statusCode);
-        // ********************** containerInstance에 등록을 시작한다. ***************************.
+        // ********************** containerInstance에 등록을 시작한다. ***************************
         requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/'+ attributeName,
             method : 'POST',
             json : true,
@@ -50,7 +49,6 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                 console.log('endTIme : ' + endTime);
                 console.log('time : ' + timeResult);
                 console.log('**************************************************');
-
                 response.status(201).send();
             } else
                 response.status(404).send();
@@ -60,7 +58,6 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
 
 exports.updateFiwareInfo = function(request, response, startTime){
     // Fiware에서 전달한 정보를 파싱한다. (attribute의 데이터를 가지고 온다.)
-
     console.log('subscriptionId : ' + request.body.subscriptionId);
     var contextResponses = request.body.contextResponses
     var contextElement = contextResponses[0].contextElement;
@@ -88,13 +85,15 @@ exports.updateFiwareInfo = function(request, response, startTime){
             // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
             return registerCount < attributeName.length;
         },
-
-        function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
+        function (iterateCallback) {
             console.log('in async');
             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
             updateFunction(response, entityName, attributeName[registerCount], type[registerCount], value[registerCount], startTime);
             registerCount++;
-            setTimeout(dummyCallback, 1000); // 1초 주기로 해당함수를 실행한다.
+            setTimeout(iterateCallback, 0);
+            /* setTimeout 자체는 1초가 지났기 떄문에 iterateCallback실행이 가능하나 내부에 있는
+               함수(updateFunction)이 실행이 끝난상태가 아니기 때문에 끝날때 까지 기다린 후에 실행한다.
+            */
         },
         function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
             console.log("End");
