@@ -52,13 +52,13 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                 console.log('endTIme : ' + endTime);
                 console.log('time : ' + timeResult);
                 console.log('**************************************************');
-                response.status(201).send();
 
                 if(registerCount < attributeName.length - 1) {
                     registerCount++;
                     updateCallback(response, entityName, attributeName, type, value, startTime, updateFunction);
                 } else {
                     registerCount = 0; // 모두 다 업데이트 하였으므로 초기화 한다.
+                    response.status(201).send();
                 }
             } else
                 response.status(404).send();

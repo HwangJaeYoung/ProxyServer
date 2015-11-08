@@ -12,7 +12,7 @@ var AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
 var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 정의하기 위한 함수이다.
-var requestFunction = function(response, attributeName, type, value, requestCallback) {
+var registerFunction = function(response, attributeName, type, value, registerCallback) {
     // ********************** Container에 등록을 시작한다. ***************************
     requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + AEName,
         method : 'POST',
@@ -53,13 +53,13 @@ var requestFunction = function(response, attributeName, type, value, requestCall
             console.log("before end");
             if(contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
                 console.log('AE, Container, contentInstance crease success!!');
-                response.status(201).send();
 
                 if(registerCount < attributeName.length - 1) {
                     registerCount++;
-                    requestCallback(response, attributeName, type, value, requestFunction);
+                    registerCallback(response, attributeName, type, value, registerFunction);
                 } else {
                     registerCount = 0; // 모두 다 생성 하였으므로 초기화 한다.
+                    response.status(201).send();
                 }
             } else
                 response.status(404).send();
@@ -158,7 +158,7 @@ exports.getFiwareInfo = function(response, entityName){
                         'App-ID': "0.2.481.2.0001.001.000111"
                     }
                 }, function(error, AECreateResponse, body) {
-                    requestFunction(response, attributeName, type, value, requestFunction);
+                    registerFunction(response, attributeName, type, value, registerFunction);
                     /*
                     // attributes를 동시에 저장하기 위한 동기화가 필요하다.
                     async.whilst(function( ) {
