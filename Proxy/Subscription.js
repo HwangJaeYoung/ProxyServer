@@ -60,8 +60,9 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                     registerCount = 0; // 모두 다 업데이트 하였으므로 초기화 한다.
                     response.status(201).send();
                 }
-            } else
+            } else {
                 response.status(404).send();
+            }
         });
     });
 };
@@ -90,75 +91,4 @@ exports.updateFiwareInfo = function(request, response, startTime){
     }
 
     updateFunction(response, entityName, attributeName, type, value, startTime, updateFunction);
-
-    /*
-    var registerCount = 0;
-    // contentInstance의 업데이트를 시작한다. attribute가 여러개인 경우 동기화가 필요하다.
-    async.whilst(function( ) {
-            // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
-            return registerCount < attributeName.length;
-        },
-        function (iterateCallback) {
-            console.log('in async');
-            // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
-            updateFunction(response, entityName, attributeName[registerCount], type[registerCount], value[registerCount], startTime);
-            registerCount++;
-            setTimeout(iterateCallback, 1000);
-        },
-        function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
-            console.log("End");
-        }
-    )*/
 };
-
-/*
-// AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
-var updateFunction = function(response, entityName, attributeName, type, value, startTime, updateCallback) {
-    console.log('values : ' + attributeName + ', ' + type + ', ' + value);
-    // ********************** contentInstance삭제를 시작한다. ***************************
-    requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/' + attributeName + '/' + 'deviceinfo',
-        method : 'DELETE',
-        headers : { // Mobius에 contentInstance삭제를 위한 기본 헤더 구조
-            'Accept' : 'application/xml',
-            'X-M2M-RI' : '12345',
-            'X-M2M-Origin' : 'Origin'
-        }
-    }, function(error, containerCreateResponse, body) {
-        console.log('in contentInstance');
-        // ********************** containerInstance에 등록을 시작한다. ***************************
-        requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + entityName + '/'+ attributeName,
-            method : 'POST',
-            json : true,
-            headers : { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
-                'Accept' : 'application/json',
-                'locale' : 'ko',
-                'X-M2M-RI' : '12345',
-                'X-M2M-Origin' : 'Origin',
-                'X-M2M-NM' : 'deviceinfo', // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
-                'content-type' : 'application/vnd.onem2m-res+json; ty=4',
-                'nmtype' : 'long'
-            },
-            body: { // contentInstance를 등록할때 필요한 payload json 구조를 작성한다.
-                "contentInfo": type,
-                "content": value
-            }
-        }, function(error, contentInstanceResponse, body) {
-            if(contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
-                console.log('contentInstance update success!!');
-
-                var endDate = new Date();
-                var endTime = parseInt(endDate.getMilliseconds());
-                var timeResult = endTime - startTime;
-
-                console.log('**************************************************');
-                console.log('startTime : ' + startTime);
-                console.log('endTIme : ' + endTime);
-                console.log('time : ' + timeResult);
-                console.log('**************************************************');
-                response.status(201).send();
-            } else
-                response.status(404).send();
-        });
-    });
-    console.log("function end");
-}; */
