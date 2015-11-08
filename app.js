@@ -34,13 +34,15 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
     var startDate = new Date();
     var startTime = parseInt(startDate.getMilliseconds());
 
-    var subId = request.body.subscriptionId;
+    var subId = request.body.subscriptionId; // 비교를 위한 subscriptionId 저장
 
-    if(map.has(subId) == false) {
+    /* 초기에 subscription을 신청할때 지정한 시간(ex. 15s)이 지나지 않았음에도
+       바로 호출되는 경우가 있어 방지 하기위한 부분
+     */
+    if(map.has(subId) == false)
         map.set(subId, true);
-    } else {
+    else
         update.updateFiwareInfo(request, response, startTime);
-    }
 });
 
 // Server start!!
