@@ -89,6 +89,5 @@ exports.updateFiwareInfo = function(request, response, startTime){
             count++;
         }
     }
-
     updateFunction(response, entityName, attributeName, type, value, startTime, updateFunction);
 };

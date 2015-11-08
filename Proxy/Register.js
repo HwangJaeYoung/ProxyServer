@@ -59,7 +59,6 @@ var registerFunction = function(response, attributeName, type, value, registerCa
                     registerCallback(response, attributeName, type, value, registerFunction);
                 } else {
                     registerCount = 0; // 모두 다 생성 하였으므로 초기화 한다.
-                    response.status(201).send();
 
                     requestToAnotherServer( { url : 'http://193.48.247.246:1026/v1/subscribeContext',
                         method : 'POST',
@@ -90,6 +89,8 @@ var registerFunction = function(response, attributeName, type, value, registerCa
                                 }
                             ]
                         }
+                    }, function(error, subscriptionResponse, body) {
+                        response.status(201).send();
                     });
                 }
             } else {
