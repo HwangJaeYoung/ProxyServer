@@ -78,7 +78,7 @@ var registerFunction = function(response, attributeName, type, value, registerCa
                                 }
                             ],
                             "attributes" : attributeName,
-                            "reference" : "http://1.176.121.100:62590/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
+                            "reference" : "http://218.51.23.10:62590/FiwareNotificationEndpoint", // 나중에 endpoint를 지정한다.
                             "duration" : "P1M",
                             "notifyConditions" : [
                                 {
@@ -90,6 +90,7 @@ var registerFunction = function(response, attributeName, type, value, registerCa
                             ]
                         }
                     }, function(error, subscriptionResponse, body) {
+                        // AE, Container, contentInstance, subscription이 다 완료되었을 때
                         response.status(201).send();
                     });
                 }
