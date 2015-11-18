@@ -17,8 +17,8 @@ app.use(bodyParser.json( ));
 app.use(app.router);
 
 // 접근 하려고 하는 FIWARE서비스의 위치를 정의한다.
-global.fiwareService = 'egmul20';
-global.fiwareServicePath = '/egmul20path';
+global.fiwareService = 'fiwareiot';
+global.fiwareServicePath = '/';
 
 var map = new HashMap();
 

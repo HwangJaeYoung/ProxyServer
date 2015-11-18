@@ -60,7 +60,7 @@ var registerFunction = function(response, attributeName, type, value, registerCa
                 } else {
                     registerCount = 0; // 모두 다 생성 하였으므로 초기화 한다.
 
-                    requestToAnotherServer( { url : 'http://193.48.247.246:1026/v1/subscribeContext',
+                    requestToAnotherServer( { url : 'http://130.206.80.40:1026/v1/subscribeContext',
                         method : 'POST',
                         json : true,
                         headers : { // fiware접근에 필요한 기본 헤더의 구조
@@ -105,7 +105,7 @@ exports.getFiwareInfo = function(response, entityName){
 
     AEName = entityName;
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
-    requestToAnotherServer( { url : 'http://193.48.247.246:1026/v1/queryContext',
+    requestToAnotherServer( { url : 'http://130.206.80.40:1026/v1/queryContext',
         method : 'POST',
         json : true,
         headers : { // fiware접근에 필요한 기본 헤더의 구조
