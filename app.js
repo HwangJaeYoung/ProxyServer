@@ -12,6 +12,8 @@ var update = require('./Proxy/Subscription');
 
 var app = express( );
 
+var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
+
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json( ));
 app.use(app.router);
@@ -22,12 +24,13 @@ global.fiwareServicePath = '/';
 
 var map = new HashMap();
 
+/*
 //  Register Fiware Device infomation
 app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
     var entityName = request.params.entityName; // Mobius에서 등록하고 싶은 Device의 EntityID를 전달한다.
     // Fiware의 정보를 가져와서 AE, Container, contentInstance를 구성하여 등록한다.
     register.getFiwareInfo(response, entityName);
-});
+}); */
 
 // Fiware Subscription endpoint
 app.post('/FiwareNotificationEndpoint', function(request, response) {
@@ -48,4 +51,5 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
 // Server start!!
 http.createServer(app).listen(62590, function( ) {
     console.log("Server running at http://127.0.0.1:62590");
+    register.getFiwareInfo('TestEntity');
 });

@@ -12,7 +12,7 @@ var AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
 var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 정의하기 위한 함수이다.
-var registerFunction = function(response, attributeName, type, value, registerCallback) {
+var registerFunction = function(attributeName, type, value, registerCallback) {
     // ********************** Container에 등록을 시작한다. ***************************
     requestToAnotherServer( { url : 'http://127.0.0.1:7579/mobius-yt/' + AEName,
         method : 'POST',
@@ -56,7 +56,7 @@ var registerFunction = function(response, attributeName, type, value, registerCa
 
                 if(registerCount < attributeName.length - 1) {
                     registerCount++;
-                    registerCallback(response, attributeName, type, value, registerFunction);
+                    registerCallback(attributeName, type, value, registerFunction);
                 } else {
                     registerCount = 0; // 모두 다 생성 하였으므로 초기화 한다.
 
@@ -91,17 +91,19 @@ var registerFunction = function(response, attributeName, type, value, registerCa
                         }
                     }, function(error, subscriptionResponse, body) {
                         // AE, Container, contentInstance, subscription이 다 완료되었을 때
-                        response.status(201).send();
+                        // response.status(201).send();
+                        console.log("FiwareDevice Register Success");
                     });
                 }
             } else {
-                response.status(404).send();
+                //response.status(404).send();
+                console.log("Create Error");
             }
         });
     });
 };
 
-exports.getFiwareInfo = function(response, entityName){
+exports.getFiwareInfo = function(entityName){
 
     AEName = entityName;
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
@@ -162,7 +164,7 @@ exports.getFiwareInfo = function(response, entityName){
                     'App-ID': "0.2.481.2.0001.001.000111"
                 }
             }, function(error, AECreateResponse, body) {
-                registerFunction(response, attributeName, type, value, registerFunction);
+                registerFunction(attributeName, type, value, registerFunction);
             });
         }
     });
