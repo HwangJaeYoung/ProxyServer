@@ -24,8 +24,7 @@ global.fiwareServicePath = '/';
 
 var map = new HashMap();
 
-/*
-//  Register Fiware Device infomation
+/* //  Register Fiware Device infomation
 app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
     var entityName = request.params.entityName; // Mobius에서 등록하고 싶은 Device의 EntityID를 전달한다.
     // Fiware의 정보를 가져와서 AE, Container, contentInstance를 구성하여 등록한다.
@@ -51,5 +50,22 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
 // Server start!!
 http.createServer(app).listen(62590, function( ) {
     console.log("Server running at http://127.0.0.1:62590");
-    register.getFiwareInfo('TestEntity');
+
+    var entityArray = [];
+    entityArray[0] = "TestEntity"; entityArray[1] = "TestEntity2"; entityArray[2] = "TestEntity3"; entityArray[3] = "TestEntity4";
+
+    async.whilst(function( ) {
+            // 탈출조건 저장할 attribute의 갯수를 확인하여 갯수만큼 저장한다.
+            return registerCount < entityArray.length;
+        },
+        function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
+            // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
+            register.getFiwareInfo(entityArray[registerCount]);
+            registerCount++;
+            setTimeout(dummyCallback, 2000); // 1초 주기로 해당함수를 실행한다.
+        },
+        function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
+            console.log("End");
+        }
+    )
 });
