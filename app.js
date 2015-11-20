@@ -57,16 +57,13 @@ http.createServer(app).listen(62590, function( ) {
         },
         function (dummyCallback) { // dummyCallback은 사용하는 함수가 아니다.
             // 반복적으로 저장하기 위해 호출한다. 한 번 호출이 끝나면  registerCount검사를 동기적으로 검사하여 실행한다.
+
             register.getFiwareInfo(entityArray[registerCount]);
             registerCount++;
-            setTimeout(dummyCallback, 2000); // 1초 주기로 해당함수를 실행한다.
+            setTimeout(dummyCallback, 100); // 1초 주기로 해당함수를 실행한다.
         },
         function (err) { // 중간에 에러가 발생하거나 탈출조건 확인후 정상적으로 끝났을 때
             console.log("End");
         }
     )
-
-    /* for(var i = 0; i < entityArray.length; i++) {
-        register.getFiwareInfo(entityArray[i]);
-    } */
 });

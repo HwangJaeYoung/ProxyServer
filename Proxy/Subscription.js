@@ -6,30 +6,44 @@
 var mysql = require('mysql');
 var async = require('async');
 var requestToAnotherServer = require('request');
-
 var registerCount = 0; // attribute 요소의 개수를 카운트 한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
 var updateFunction = function(response, entityName, attributeName, type, value, startTime, updateCallback) {
     console.log('values : ' + attributeName[registerCount] + ', ' + type[registerCount] + ', ' + value[registerCount]);
+
+    var cur_d = new Date();
+
+    var msec = '';
+    if((parseInt(cur_d.getMilliseconds(), 10)<10)) {
+        msec = ('00'+cur_d.getMilliseconds());
+    }
+    else if((parseInt(cur_d.getMilliseconds(), 10)<100)) {
+        msec = ('0'+cur_d.getMilliseconds());
+    }
+    else {
+        msec = cur_d.getMilliseconds();
+    }
+
     // ********************** containerInstance에 등록을 시작한다. ***************************
-    requestToAnotherServer( { url :  yellowTurtleIP + '/mobius-yt/' + entityName + '/'+ attributeName[registerCount],
-        method : 'POST',
-            json : true,
-            headers : { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
-                'Accept' : 'application/json',
-                'locale' : 'ko',
-                'X-M2M-RI' : '12345',
-                'X-M2M-Origin' : 'Origin',
-                'X-M2M-NM' : 'deviceinfo', // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
-                'content-type' : 'application/vnd.onem2m-res+json; ty=4',
-                'nmtype' : 'long'
-            },
-            body: { // contentInstance를 등록할때 필요한 payload json 구조를 작성한다.
-                "contentInfo": type[registerCount],
-                "content": value[registerCount]
-            }
-        }, function(error, contentInstanceResponse, body) {
+    requestToAnotherServer({
+        url: yellowTurtleIP + '/mobius-yt/' + entityName + '/' + attributeName[registerCount],
+        method: 'POST',
+        json: true,
+        headers: { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
+            'Accept': 'application/json',
+            'locale': 'ko',
+            'X-M2M-RI': '12345',
+            'X-M2M-Origin': 'Origin',
+            'X-M2M-NM': msec, // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
+            'content-type': 'application/vnd.onem2m-res+json; ty=4',
+            'nmtype': 'long'
+        },
+        body: { // contentInstance를 등록할때 필요한 payload json 구조를 작성한다.
+            "contentInfo": type[registerCount],
+            "content": value[registerCount]
+        }
+    }, function (error, contentInstanceResponse, body) {
         if (contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
 
             if (registerCount < attributeName.length - 1) {

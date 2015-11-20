@@ -13,6 +13,7 @@ var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 정의하기 위한 함수이다.
 var registerFunction = function(attributeName, type, value, registerCallback) {
+    console.log("in container : " + registerCount);
     // ********************** Container에 등록을 시작한다. ***************************
     requestToAnotherServer( { url : yellowTurtleIP + '/mobius-yt/' + AEName,
         method : 'POST',
@@ -31,6 +32,7 @@ var registerFunction = function(attributeName, type, value, registerCallback) {
             "heartbeatPeriod": "300"
         }
     }, function(error, containerCreateResponse, body) {
+        console.log("in contentInstance : " + registerCount);
         // ********************** containerInstance에 등록을 시작한다. ***************************.
         requestToAnotherServer( { url : yellowTurtleIP + '/mobius-yt/' + AEName + '/'+ attributeName[registerCount],
             method : 'POST',
@@ -57,7 +59,7 @@ var registerFunction = function(attributeName, type, value, registerCallback) {
                     registerCallback(attributeName, type, value, registerFunction);
                 } else {
                     registerCount = 0; // 모두 다 생성 하였으므로 초기화 한다.
-                    console.log("FiwareDevice Register Success");
+                    //console.log("FiwareDevice Register Success");
                     /*
                     requestToAnotherServer( { url : fiwareIP + '/v1/subscribeContext',
                         method : 'POST',
@@ -95,6 +97,7 @@ var registerFunction = function(attributeName, type, value, registerCallback) {
                 }
             } else {
                 console.log('*****************************************')
+                console.log("RegisterCount : " + contentInstanceResponse.statusCode);
                 console.log("Create Error : " + contentInstanceResponse.statusCode);
                 console.log('*****************************************')
             }
@@ -105,6 +108,8 @@ var registerFunction = function(attributeName, type, value, registerCallback) {
 exports.getFiwareInfo = function(entityName){
 
     AEName = entityName;
+    console.log(AEName);
+
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
     requestToAnotherServer( { url :  fiwareIP + '/v1/queryContext',
         method : 'POST',
