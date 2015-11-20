@@ -4,6 +4,7 @@
 
 // extract the modules
 var http = require('http');
+var async = require('async');
 var express = require('express');
 var HashMap = require('hashmap');
 var bodyParser = require('body-parser');
@@ -21,15 +22,11 @@ app.use(app.router);
 // 접근 하려고 하는 FIWARE서비스의 위치를 정의한다.
 global.fiwareService = 'fiwareiot';
 global.fiwareServicePath = '/';
+global.fiwareIP = 'http://130.206.80.40:1026';
+global.yellowTurtleIP = 'http://203.253.128.151:7579';
+global.proxyIP = '';
 
 var map = new HashMap();
-
-/* //  Register Fiware Device infomation
-app.get('/FiwareDeviceRegister/:entityName', function(request, response) {
-    var entityName = request.params.entityName; // Mobius에서 등록하고 싶은 Device의 EntityID를 전달한다.
-    // Fiware의 정보를 가져와서 AE, Container, contentInstance를 구성하여 등록한다.
-    register.getFiwareInfo(response, entityName);
-}); */
 
 // Fiware Subscription endpoint
 app.post('/FiwareNotificationEndpoint', function(request, response) {
@@ -68,4 +65,8 @@ http.createServer(app).listen(62590, function( ) {
             console.log("End");
         }
     )
+
+    /* for(var i = 0; i < entityArray.length; i++) {
+        register.getFiwareInfo(entityArray[i]);
+    } */
 });
