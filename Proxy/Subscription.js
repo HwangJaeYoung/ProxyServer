@@ -6,6 +6,7 @@
 // extract the modules
 var mysql = require('mysql');
 var async = require('async');
+var microtime = require('microtime');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
@@ -13,18 +14,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
     var subscriptionCount = subscriptionCountPram;
     console.log('values : ' + attributeName[subscriptionCount] + ', ' + type[subscriptionCount] + ', ' + value[subscriptionCount]);
 
-    var cur_d = new Date();
-
-    var msec = '';
-    if((parseInt(cur_d.getMilliseconds(), 10)<10)) {
-        msec = ('00'+cur_d.getMilliseconds());
-    }
-    else if((parseInt(cur_d.getMilliseconds(), 10)<100)) {
-        msec = ('0'+cur_d.getMilliseconds());
-    }
-    else {
-        msec = cur_d.getMilliseconds();
-    }
+    var time = microtime.now( );
 
     // ********************** contentInstance에 등록을 시작한다. ***************************
     requestToAnotherServer({
@@ -36,7 +26,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
             'locale': 'ko',
             'X-M2M-RI': '12345',
             'X-M2M-Origin': 'Origin',
-            'X-M2M-NM': msec, // Fiware에서 가져온 attribute이름을 사용한다.(e.g. temperature)
+            'X-M2M-NM': time, // path_UNIQUE이므로 마이크로초를 이용하여 레코드를 구분한다.
             'content-type': 'application/vnd.onem2m-res+json; ty=4',
             'nmtype': 'long'
         },
@@ -52,10 +42,11 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                 updateCallback(response, entityName, attributeName, type, value, startTime, subscriptionCount, updateFunction);
             } else {
                 subscriptionCount = 0; // 모두 다 업데이트 하였으므로 초기화 한다.
-                response.status(201).send();
             }
         } else {
-            response.status(404).send();
+            // 주로 409 Conflict에러가 발생한다.
+            console.log(contentInstanceResponse.statusCode);
+            process.exit(1); // 에러가 발생했을 경우 서버를 종료시킨다.
         }
     });
 };
