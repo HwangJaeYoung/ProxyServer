@@ -1,5 +1,6 @@
 /**
  * Created by HwangJaeYoung on 2015-11-07.
+ * forest62590@gmail.com
  */
 
 var infinite = function( ) {

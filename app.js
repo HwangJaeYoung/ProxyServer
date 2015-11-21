@@ -1,5 +1,6 @@
 /**
  * Created by HwangJaeYoung on 2015-10-10.
+ * forest62590@gmail.com
  */
 
 // extract the modules
@@ -12,8 +13,6 @@ var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
 
 var app = express( );
-
-var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json( ));
@@ -48,8 +47,9 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
 http.createServer(app).listen(62590, function( ) {
     console.log("Server running at http://127.0.0.1:62590");
 
-    var entityArray = [];
+    var entityArray = []; // Fiware에 등록된 entityID를 미리 알고 있다고 가정하고 저장한다.
     entityArray[0] = "TestEntity"; entityArray[1] = "TestEntity2"; entityArray[2] = "TestEntity3"; entityArray[3] = "TestEntity4";
+    // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
 
-    register.fiwareDeviceRegistration(entityArray)
+    register.fiwareDeviceRegistration(entityArray) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
 });
