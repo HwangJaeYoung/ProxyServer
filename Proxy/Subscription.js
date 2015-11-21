@@ -7,7 +7,6 @@
 var mysql = require('mysql');
 var async = require('async');
 var requestToAnotherServer = require('request');
-var subscriptionCount = 0; // attribute 요소의 개수를 카운트 한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
 var updateFunction = function(response, entityName, attributeName, type, value, startTime, subscriptionCountPram, updateCallback) {
