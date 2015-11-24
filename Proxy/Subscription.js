@@ -5,7 +5,6 @@
 
 // extract the modules
 var mysql = require('mysql');
-var async = require('async');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
@@ -14,9 +13,8 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
     console.log('values : ' + attributeName[subscriptionCount] + ', ' + type[subscriptionCount] + ', ' + value[subscriptionCount]);
 
     var cur_d = new Date();
-    //var cur_o = cur_d.getTimezoneOffset()/(-60);
-    //cur_d.setHours(cur_d.getHours() + cur_o);
     var msec = '';
+
     if((parseInt(cur_d.getMilliseconds(), 10)<10)) {
         msec = ('00'+cur_d.getMilliseconds());
     }
@@ -58,12 +56,12 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                 }
             } else {
                 // 주로 409 Conflict에러가 발생한다.
-                console.log(contentInstanceResponse.statusCode);
+                console.log('****************** error status **************** : ' + contentInstanceResponse.statusCode);
                 process.exit(1); // 에러가 발생했을 경우 서버를 종료시킨다.
             }
         } else {
             if(error != null) {
-                console.log('****************** error status **************** :' + error);
+                console.log('****************** error status **************** : ' + error);
                 console.log('****************** error code ****************** : ' + error.code);
                 process.exit(1); // 에러가 발생했을 경우 서버를 종료시킨다.
             }

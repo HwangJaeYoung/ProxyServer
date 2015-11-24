@@ -5,14 +5,14 @@
 
 // extract the modules
 var http = require('http');
-var async = require('async');
 var express = require('express');
 var HashMap = require('hashmap');
 var bodyParser = require('body-parser');
 var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
-
 var app = express( );
+var map = new HashMap();
+const crypto = require('crypto');
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json( ));
@@ -31,8 +31,6 @@ global.randomValueBase64 = function(len) {
         .replace(/\+/g, '0')  // replace '+' with '0'
         .replace(/\//g, '0'); // replace '/' with '0'
 };
-
-var map = new HashMap();
 
 function Entity( ) {
     this.entityName = [];
@@ -84,14 +82,16 @@ http.createServer(app).listen(62590, function( ) {
     console.log("Server running at http://127.0.0.1:62590");
 
     var entityNameArray = []; // Fiware에 등록된 entityID를 미리 알고 있다고 가정하고 저장한다.
-    var entityTypeArray = [];
+    var entityTypeArray = []; // Fiware에 등록된 entityType를 미리 알고 있다고 가정하고 저장한다.
+
+    // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
+    // 등록할 Entity의 이름과 Type을 순서대로 정의한다.
     entityNameArray[0] = "TestEntity"; entityNameArray[1] = "TestEntity2"; entityNameArray[2] = "TestEntity3"; entityNameArray[3] = "TestEntity4";
     entityTypeArray[0] = "thing"; entityTypeArray[1] = "thing"; entityTypeArray[2] = "thing"; entityTypeArray[3] = "thing";
 
-    //  현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
     var fiwareInfo = new Entity( );
     fiwareInfo.setEntityName(entityNameArray);
     fiwareInfo.setEntityType(entityTypeArray);
 
-    register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+    //register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
 });

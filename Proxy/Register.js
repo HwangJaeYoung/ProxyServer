@@ -6,7 +6,6 @@
 // extract the modules
 var mysql = require('mysql');
 var requestToAnotherServer = require('request');
-var async = require('async');
 
 var AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
 var AEType = ''; // 공통적으로 사용하는 AE Type을 정의한다.
@@ -158,6 +157,8 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                                 "type": "ONTIMEINTERVAL",
                                 "condValues": [
                                     "PT15S"
+                                    // Fiware에서 notification 하는 주기를 설정한다. PT15S는 15초 마다 Fiware에서 Fi-Proxy로 전달을 한다.
+                                    // PT1S로 바꾸면 1초마다 전달된다.
                                 ]
                             }
                         ]
@@ -172,7 +173,7 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                     } else {
                         // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
                         console.log('*****************************************')
-                        console.log("Subscription All Create");
+                        console.log("******** Subscription All Create ********");
                         console.log('*****************************************');
                     }
                 });
