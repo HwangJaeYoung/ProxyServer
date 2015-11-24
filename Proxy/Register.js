@@ -15,7 +15,7 @@ var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
 var subscriptionCount = 0; // ContextBroker에 Subscription을 신청할 때 개수를 확인하기 위하여 사용한다.
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 정의하기 위한 함수이다.
-var registerFunction = function(attributeName, type, value, registerCallback, aeCreateCallback, entityArray) {
+var registerFunction = function(attributeName, type, value, registerCallback, aeCreateCallback, fiwareInfo) {
     // ********************** Container에 등록을 시작한다. ***************************
     requestToAnotherServer( { url : yellowTurtleIP + '/mobius-yt/' + AEName,
         method : 'POST',
@@ -57,21 +57,21 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
                 if(registerCount < attributeName.length - 1) {
                     registerCount++;
                     // 아직 등록되지 않은 attribute들이 있으므로 registerCallback 함수를 이용하여 나머지 attribute들을 등록한다.
-                    registerCallback(attributeName, type, value, registerFunction, aeCreateCallback, entityArray);
+                    registerCallback(attributeName, type, value, registerFunction, aeCreateCallback, fiwareInfo);
                 } else {
                     registerCount = 0; // 모두 다 생성 하였으므로 초기화 한다.
 
                     // 아직 등록되지 않은 Entity(AE)가 있으므로 aeCreateCallback 함수를 다시 호출한다.
-                    if(AECount < entityArray.length - 1) {
+                    if(AECount < fiwareInfo.getEntityNameLength( ) - 1) {
                         AECount++;
-                        aeCreateCallback(entityArray);
+                        aeCreateCallback(fiwareInfo);
                     } else { // 모든 AE가 등록이 되었을 때 수행하는 부분
                         console.log('*****************************************')
                         console.log("********** All Entity Created ***********");
                         console.log('*****************************************')
 
                         // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
-                        subscriptionToContextBroker(entityArray); // 등록한 EntityID목록을 매개변수로 넘겨준다.
+                        subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
                     }
                 }
             } else { // contentInstance의 등록이 실패하였을때 실행하는 부분 주로 409 에러를 발생시킨다.
@@ -83,10 +83,13 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
     });
 };
 
-var subscriptionToContextBroker = function (entityArray) {
+var subscriptionToContextBroker = function (fiwareInfo) {
 
-    var AEName = entityArray[subscriptionCount];
-    var AEType = entityArray[subscriptionCount];
+    var entityName = fiwareInfo.getEntityName( );
+    var entityType = fiwareInfo.getEntityType( );
+
+    var AEName = entityName[subscriptionCount];
+    var AEType = entityType[subscriptionCount];
 
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
     requestToAnotherServer( { url :  fiwareIP + '/v1/queryContext',
@@ -101,7 +104,7 @@ var subscriptionToContextBroker = function (entityArray) {
             body: { // NGSI10에 따른 payload이 구성이다.(queryContext)
                 'entities': [
                     {
-                        "type": "thing",
+                        "type": AEType,
                         "isPattern": "false",
                         "id": "" + AEName
                     }
@@ -142,7 +145,7 @@ var subscriptionToContextBroker = function (entityArray) {
                     body: { // subscription를 등록할때 필요한 payload json 구조를 작성한다.
                         "entities": [
                             {
-                                "type": "thing",
+                                "type": AEType,
                                 "isPattern": "false",
                                 "id": "" + AEName
                             }
@@ -162,10 +165,10 @@ var subscriptionToContextBroker = function (entityArray) {
                 }, function (error, subscriptionResponse, body) {
                     console.log("FiwareDevice Register Success");
 
-                    if(subscriptionCount < entityArray.length - 1) {
+                    if(subscriptionCount < fiwareInfo.getEntityNameLength( ) - 1) {
                         // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
                         subscriptionCount++;
-                        subscriptionToContextBroker(entityArray);
+                        subscriptionToContextBroker(fiwareInfo);
                     } else {
                         // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
                         console.log('*****************************************')
