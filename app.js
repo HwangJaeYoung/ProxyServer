@@ -93,5 +93,5 @@ http.createServer(app).listen(62590, function( ) {
     fiwareInfo.setEntityName(entityNameArray);
     fiwareInfo.setEntityType(entityTypeArray);
 
-    //register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+    register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
 });
