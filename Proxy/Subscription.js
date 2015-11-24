@@ -6,15 +6,12 @@
 // extract the modules
 var mysql = require('mysql');
 var async = require('async');
-var microtime = require('microtime');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
 var updateFunction = function(response, entityName, attributeName, type, value, startTime, subscriptionCountPram, updateCallback) {
     var subscriptionCount = subscriptionCountPram;
     console.log('values : ' + attributeName[subscriptionCount] + ', ' + type[subscriptionCount] + ', ' + value[subscriptionCount]);
-
-    var time = microtime.now( );
 
     // ********************** contentInstance에 등록을 시작한다. ***************************
     requestToAnotherServer({
@@ -26,7 +23,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
             'locale': 'ko',
             'X-M2M-RI': '12345',
             'X-M2M-Origin': 'Origin',
-            'X-M2M-NM': time, // path_UNIQUE이므로 마이크로초를 이용하여 레코드를 구분한다.
+            'X-M2M-NM': 'devivceinfo', // path_UNIQUE이므로 마이크로초를 이용하여 레코드를 구분한다.
             'content-type': 'application/vnd.onem2m-res+json; ty=4',
             'nmtype': 'long'
         },

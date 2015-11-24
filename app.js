@@ -27,6 +27,35 @@ global.proxyIP = 'http://52.192.114.25:62590'; // 프록시를 사용하는 장소에 따라 
 
 var map = new HashMap();
 
+function Entity( ) {
+    this.entityName = [];
+    this.entityType = [];
+
+    this.setEntityName = function(entityName) {
+        this.entityName = entityName;
+    };
+
+    this.getEntityName = function( ) {
+        return this.entityName;
+    };
+
+    this.getEntityNameLength = function( ) {
+        return this.entityName.length;
+    };
+
+    this.setEntityType = function (entityType) {
+        this.entityType = entityType;
+    };
+
+    this.getEntityType = function( ) {
+        return this.entityType;
+    };
+
+    this.getEntityTypeLength = function( ) {
+        return this.entityType.length;
+    };
+}
+
 // Fiware Subscription endpoint
 app.post('/FiwareNotificationEndpoint', function(request, response) {
     var startDate = new Date();
@@ -47,9 +76,15 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
 http.createServer(app).listen(62590, function( ) {
     console.log("Server running at http://127.0.0.1:62590");
 
-    var entityArray = []; // Fiware에 등록된 entityID를 미리 알고 있다고 가정하고 저장한다.
-    entityArray[0] = "TestEntity"; entityArray[1] = "TestEntity2"; entityArray[2] = "TestEntity3"; entityArray[3] = "TestEntity4";
-    // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
+    var entityNameArray = []; // Fiware에 등록된 entityID를 미리 알고 있다고 가정하고 저장한다.
+    var entityTypeArray = [];
+    entityNameArray[0] = "TestEntity"; entityNameArray[1] = "TestEntity2"; entityNameArray[2] = "TestEntity3"; entityNameArray[3] = "TestEntity4";
+    entityTypeArray[0] = "thing"; entityTypeArray[1] = "thing"; entityTypeArray[2] = "thing"; entityTypeArray[3] = "thing";
 
-    register.fiwareDeviceRegistration(entityArray) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+    //  현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
+    var fiwareInfo = new Entity( );
+    fiwareInfo.setEntityName(entityNameArray);
+    fiwareInfo.setEntityType(entityTypeArray);
+
+    register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
 });

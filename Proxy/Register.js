@@ -9,6 +9,7 @@ var requestToAnotherServer = require('request');
 var async = require('async');
 
 var AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
+var AEType = ''; // 공통적으로 사용하는 AE Type을 정의한다.
 var AECount = 0; // 생성되는 AE의 개수를 확인하기 위하여 사용한다.
 var registerCount = 0;  // attribute 요소의 개수를 카운트 한다.
 var subscriptionCount = 0; // ContextBroker에 Subscription을 신청할 때 개수를 확인하기 위하여 사용한다.
@@ -85,6 +86,7 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
 var subscriptionToContextBroker = function (entityArray) {
 
     var AEName = entityArray[subscriptionCount];
+    var AEType = entityArray[subscriptionCount];
 
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
     requestToAnotherServer( { url :  fiwareIP + '/v1/queryContext',
@@ -175,9 +177,15 @@ var subscriptionToContextBroker = function (entityArray) {
     });
 }
 
-var getFiwareInfo = function(entityArray){
-    AEName = entityArray[AECount];
-    console.log('Creating..... ' + AEName);
+var getFiwareInfo = function(fiwareInfo){
+
+    var entityName = fiwareInfo.getEntityName( );
+    var entityType = fiwareInfo.getEntityType( );
+
+    AEName = entityName[AECount];
+    AEType = entityType[AECount];
+
+    console.log('Creating..... ' + AEName + ' / ' + AEType);
 
     // Fiware에 접근하여 entityName에 대한 정보를 가지고 온다.
     requestToAnotherServer( { url :  fiwareIP + '/v1/queryContext',
@@ -192,7 +200,7 @@ var getFiwareInfo = function(entityArray){
         body: { // NGSI10에 따른 payload이 구성이다.(queryContext)
             'entities': [
                 {
-                    "type": "thing",
+                    "type": AEType,
                     "isPattern": "false",
                     "id": "" + AEName
                 }
@@ -238,12 +246,12 @@ var getFiwareInfo = function(entityArray){
                 }
             }, function(error, AECreateResponse, body) {
                 console.log("AE create status : " + AECreateResponse.statusCode);
-                registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, entityArray);
+                registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
             });
         }
     });
 };
 
-exports.fiwareDeviceRegistration = function(entityArray) {
-    getFiwareInfo(entityArray);
+exports.fiwareDeviceRegistration = function(fiwareInfo) {
+    getFiwareInfo(fiwareInfo);
 }
