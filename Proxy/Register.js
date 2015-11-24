@@ -164,7 +164,7 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                         ]
                     }
                 }, function (error, subscriptionResponse, body) {
-                    console.log("FiwareDevice Register Success");
+                    console.log("FiwareDevice Subscription Success");
 
                     if(subscriptionCount < fiwareInfo.getEntityNameLength( ) - 1) {
                         // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
