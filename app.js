@@ -24,6 +24,13 @@ global.fiwareServicePath = '/';
 global.fiwareIP = 'http://130.206.80.40:1026';
 global.yellowTurtleIP = 'http://203.253.128.151:7579';
 global.proxyIP = 'http://52.192.114.25:62590'; // 프록시를 사용하는 장소에 따라 IP를 수정해 주어야 한다.
+global.randomValueBase64 = function(len) {
+    return crypto.randomBytes(Math.ceil(len * 3 / 4))
+        .toString('base64')   // convert to base64 format
+        .slice(0, len)        // return required number of characters
+        .replace(/\+/g, '0')  // replace '+' with '0'
+        .replace(/\//g, '0'); // replace '/' with '0'
+};
 
 var map = new HashMap();
 

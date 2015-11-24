@@ -13,6 +13,21 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
     var subscriptionCount = subscriptionCountPram;
     console.log('values : ' + attributeName[subscriptionCount] + ', ' + type[subscriptionCount] + ', ' + value[subscriptionCount]);
 
+    var cur_d = new Date();
+    //var cur_o = cur_d.getTimezoneOffset()/(-60);
+    //cur_d.setHours(cur_d.getHours() + cur_o);
+    var msec = '';
+    if((parseInt(cur_d.getMilliseconds(), 10)<10)) {
+        msec = ('00'+cur_d.getMilliseconds());
+    }
+    else if((parseInt(cur_d.getMilliseconds(), 10)<100)) {
+        msec = ('0'+cur_d.getMilliseconds());
+    }
+    else {
+        msec = cur_d.getMilliseconds();
+    }
+    var subscriptionID = 'CI' + cur_d.toISOString().replace(/-/, '').replace(/-/, '').replace(/T/, '').replace(/:/, '').replace(/:/, '').replace(/\..+/, '') + msec + randomValueBase64(4);
+
     // ********************** contentInstance에 등록을 시작한다. ***************************
     requestToAnotherServer({
         url: yellowTurtleIP + '/mobius-yt/' + entityName + '/' + attributeName[subscriptionCount],
@@ -23,7 +38,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
             'locale': 'ko',
             'X-M2M-RI': '12345',
             'X-M2M-Origin': 'Origin',
-            'X-M2M-NM': 'devivceinfo', // path_UNIQUE이므로 마이크로초를 이용하여 레코드를 구분한다.
+            'X-M2M-NM': subscriptionID, // path_UNIQUE이므로 마이크로초를 이용하여 레코드를 구분한다.
             'content-type': 'application/vnd.onem2m-res+json; ty=4',
             'nmtype': 'long'
         },
