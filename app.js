@@ -84,7 +84,7 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
     if(map.has(subId) == false)
         map.set(subId, true);
     else
-        update.updateFiwareInfo(request, response, startTime);
+        update.updateFiwareInfo(request, response);
 });
 
 app.post('/FiwareUnsubscription', function(request, response) {

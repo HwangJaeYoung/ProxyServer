@@ -8,7 +8,7 @@ var mysql = require('mysql');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
-var updateFunction = function(response, entityName, attributeName, type, value, startTime, subscriptionCountPram, updateCallback) {
+var updateFunction = function(response, entityName, attributeName, type, value, subscriptionCountPram, updateCallback) {
     var subscriptionCount = subscriptionCountPram;
     console.log('values : ' + attributeName[subscriptionCount] + ', ' + type[subscriptionCount] + ', ' + value[subscriptionCount]);
 
@@ -50,7 +50,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
 
                 if (subscriptionCount < attributeName.length - 1) {
                     subscriptionCount++;
-                    updateCallback(response, entityName, attributeName, type, value, startTime, subscriptionCount, updateFunction);
+                    updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
                 } else {
                     subscriptionCount = 0; // 모두 다 업데이트 하였으므로 초기화 한다.
                 }
@@ -69,7 +69,7 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
     });
 };
 
-exports.updateFiwareInfo = function(request, response, startTime){
+exports.updateFiwareInfo = function(request, response){
     // Fiware에서 전달한 정보를 파싱한다. (attribute의 데이터를 가지고 온다.)
     console.log('subscriptionId : ' + request.body.subscriptionId);
     var contextResponses = request.body.contextResponses
@@ -91,5 +91,5 @@ exports.updateFiwareInfo = function(request, response, startTime){
             count++;
         }
     }
-    updateFunction(response, entityName, attributeName, type, value, startTime, 0, updateFunction);
+    updateFunction(response, entityName, attributeName, type, value, 0, updateFunction);
 };

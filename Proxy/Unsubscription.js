@@ -11,13 +11,13 @@ var unsubscriptionFunction = function(request, response, subIdArray, unsubscript
         url:  fiwareIP + '/v1/unsubscribeContext',
         method: 'POST',
         json: true,
-        headers: { // Mobius에 contentInstance등록을 위한 기본 헤더 구조
+        headers: { // ContextBroker에 Unsubscription을 하기위한 헤더구조
             'content-type' : 'application/json',
             'Accept' : 'application/json',
             'Fiware-Service' : fiwareService,
             'Fiware-ServicePath' : fiwareServicePath
         },
-        body: { // unsubscription을 할때 필요한 body 구조를 작성한다.
+        body: { // Unsubscription을 할때 필요한 body 구조를 작성한다.
             "subscriptionId" : subIdArray[unsubscriptionCount]
         }
     }, function (error, unsubscriptionResponse, body) {
@@ -25,9 +25,11 @@ var unsubscriptionFunction = function(request, response, subIdArray, unsubscript
             if (unsubscriptionCount < subIdArray.length - 1) {
                 unsubscriptionCount++;
                 unsubscriptionCallback(request, response, subIdArray, unsubscriptionFunction);
-            } else {
+            } else { // 모든 Entity의 Unsubscription 성공
                 response.status(200).send("<h1> *** Unsubscription Success *** </h1>");
             }
+        } else { // Entity Unsubscription 중간에 실패할 경우
+            response.status(500).send("<h1> *** Unsubscription error *** </h1>")
         }
     });
 };
@@ -35,13 +37,14 @@ var unsubscriptionFunction = function(request, response, subIdArray, unsubscript
 exports.unsubscriptionFiwareDevice = function(request, response, map){
     var subIdArray = []; var count = 0;
 
+    // Subscription등록 후 생성된 ID 저장한 것의 Key를 가져온다.
     map.forEach(function(value, key) {
         subIdArray[count++] = key;
     });
 
-    if(unsubscriptionCount < subIdArray.length) {
+    if(unsubscriptionCount < subIdArray.length) { // Subscription ID가 존재한다면
         unsubscriptionFunction(request, response, subIdArray, unsubscriptionFunction);
-    } else {
+    } else { // Subscription ID가 하나라도 없다면
         response.status(500).send("<h1> *** Subscription ID not exist *** </h1>")
     }
 };
