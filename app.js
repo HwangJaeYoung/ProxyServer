@@ -11,6 +11,7 @@ var HashMap = require('hashmap');
 var bodyParser = require('body-parser');
 var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
+var unsubscription = require('./Proxy/Unsubscription');
 var app = express( );
 var map = new HashMap();
 const crypto = require('crypto');
@@ -68,16 +69,13 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
             fiwareInfo.setEntityName(entityNameArray);
             fiwareInfo.setEntityType(entityTypeArray);
 
-            register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+            // register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
         });
     }
 });
 
 // Fiware Subscription endpoint
 app.post('/FiwareNotificationEndpoint', function(request, response) {
-    var startDate = new Date();
-    var startTime = parseInt(startDate.getMilliseconds());
-
     var subId = request.body.subscriptionId; // 비교를 위한 subscriptionId 저장
 
     /* 초기에 subscription을 신청할 때 지정한 시간(ex. 15s)이 지나지 않았음에도
@@ -87,6 +85,10 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
         map.set(subId, true);
     else
         update.updateFiwareInfo(request, response, startTime);
+});
+
+app.post('/FiwareUnsubscription', function(request, response) {
+    unsubscription.unsubscriptionFiwareDevice(request, response, map);
 });
 
 function Entity( ) {
