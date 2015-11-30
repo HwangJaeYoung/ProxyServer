@@ -156,7 +156,7 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                             {
                                 "type": "ONTIMEINTERVAL",
                                 "condValues": [
-                                    "PT15S"
+                                    "PT1S"
                                     // Fiware에서 notification 하는 주기를 설정한다. PT15S는 15초 마다 Fiware에서 Fi-Proxy로 전달을 한다.
                                     // PT1S로 바꾸면 1초마다 전달된다.
                                 ]
