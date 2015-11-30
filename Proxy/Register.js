@@ -150,7 +150,7 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                             }
                         ],
                         "attributes": attributeName,
-                        "reference": proxyIP + '/FiwareNotificationEndpoint', // 나중에 endpoint를 지정한다.
+                        "reference": proxyIP + ':' + proxyPort + '/FiwareNotificationEndpoint', // 나중에 endpoint를 지정한다.
                         "duration": "P1M",
                         "notifyConditions": [
                             {

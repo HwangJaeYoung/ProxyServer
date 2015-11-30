@@ -4,10 +4,23 @@
         "fiwareServicePath": "/",
         "fiwareIP": "http://130.206.80.40:1026",
         "yellowTurtleIP" : "http://203.253.128.151:7579",
-        "proxyID" : "",
+        "proxyIP" : "http://52.192.180.105",
+        "proxyPort" : "62590",
         "deviceInfo": {
             "device1" : {
                 "entity_Name" : "DemoEntity",
+                "entity_Type" : "thing"
+            },
+            "device2" : {
+                "entity_Name" : "TestEntity2",
+                "entity_Type" : "thing"
+            },
+            "device3" : {
+                "entity_Name" : "TestEntity3",
+                "entity_Type" : "thing"
+            },
+            "device4" : {
+                "entity_Name" : "TestEntity4",
                 "entity_Type" : "thing"
             }
         }
