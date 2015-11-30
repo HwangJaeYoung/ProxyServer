@@ -1,0 +1,15 @@
+{
+    "proxy:conf": {
+        "fiwareService": "fiwareiot",
+        "fiwareServicePath": "/",
+        "fiwareIP": "http://130.206.80.40:1026",
+        "yellowTurtleIP" : "http://203.253.128.151:7579",
+        "proxyID" : "",
+        "deviceInfo": {
+            "device1" : {
+                "entity_Name" : "DemoEntity",
+                "entity_Type" : "thing"
+            }
+        }
+    }
+}
