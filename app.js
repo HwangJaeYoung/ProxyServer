@@ -11,7 +11,7 @@ var HashMap = require('hashmap');
 var bodyParser = require('body-parser');
 var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
-var unsubscription = require('./Proxy/Unsubscription');
+
 var app = express( );
 var map = new HashMap();
 const crypto = require('crypto');
@@ -76,19 +76,24 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
 
 // Fiware Subscription endpoint
 app.post('/FiwareNotificationEndpoint', function(request, response) {
-    var subId = request.body.subscriptionId; // 비교를 위한 subscriptionId 저장
+    var subId = request.body.subscriptionId + '\n'; // 비교를 위한 subscriptionId 저장
 
-    /* 초기에 subscription을 신청할 때 지정한 시간(ex. 15s)이 지나지 않았음에도
-     바로 호출되는 경우가 있어 방지 하기위한 부분
-     */
-    if(map.has(subId) == false)
+    if(map.has(subId) == false) {
+        // 등록한 SubscriptionID를 저장하기 위해서 텍스트 파일을 사용한다.
+        fs.appendFile('subList.txt', subId, function (err) {
+            if(error) {
+                console.log('FATAL An error occurred trying to write in the file: ' + err);
+            } else {
+                console.log('Data registration success!!');
+            }
+        });
+
         map.set(subId, true);
-    else
+        /* 초기에 subscription을 신청할 때 지정한 시간(ex. 15s)이 지나지 않았음에도
+         바로 호출되는 경우가 있어 방지 하기위한 부분
+         */
+    } else
         update.updateFiwareInfo(request, response);
-});
-
-app.post('/FiwareUnsubscription', function(request, response) {
-    unsubscription.unsubscriptionFiwareDevice(request, response, map);
 });
 
 function Entity( ) {

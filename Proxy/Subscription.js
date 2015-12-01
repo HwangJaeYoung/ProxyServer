@@ -4,7 +4,6 @@
  */
 
 // extract the modules
-var mysql = require('mysql');
 var requestToAnotherServer = require('request');
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
@@ -17,13 +16,12 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
 
     if((parseInt(cur_d.getMilliseconds(), 10)<10)) {
         msec = ('00'+cur_d.getMilliseconds());
-    }
-    else if((parseInt(cur_d.getMilliseconds(), 10)<100)) {
+    } else if((parseInt(cur_d.getMilliseconds(), 10)<100)) {
         msec = ('0'+cur_d.getMilliseconds());
-    }
-    else {
+    } else {
         msec = cur_d.getMilliseconds();
     }
+
     var subscriptionID = 'CI' + cur_d.toISOString().replace(/-/, '').replace(/-/, '').replace(/T/, '').replace(/:/, '').replace(/:/, '').replace(/\..+/, '') + msec + randomValueBase64(4);
 
     // ********************** contentInstance에 등록을 시작한다. ***************************
