@@ -6,6 +6,7 @@
         "yellowTurtleIP" : "http://203.253.128.151:7579",
         "proxyIP" : "http://52.192.180.105",
         "proxyPort" : "62590",
+        "subscriptionActive" : "0",
         "deviceInfo": {
             "device1" : {
                 "entity_Name" : "DemoEntity",

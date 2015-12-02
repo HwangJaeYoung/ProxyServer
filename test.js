@@ -3,6 +3,7 @@
  */
 var fs = require('fs');
 
+/*
 fs.appendFile('message2.txt', 'data to append' + '\n', function (err) {
     if (err) throw err;
     console.log('The "data to append" was appended to file!');
@@ -18,3 +19,10 @@ fs.appendFile('message2.txt', 'akakakakakakakakakakaakakak' + '\n', function (er
         console.log(subIdArray.length);
     });
 }); */
+
+fs.readFile('subLis222t.txt', 'utf-8', function (err, data) {
+    if(err)
+        console.log("adf");
+    else
+        console.log("dddddddddd");
+});

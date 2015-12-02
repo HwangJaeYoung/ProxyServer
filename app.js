@@ -11,6 +11,7 @@ var HashMap = require('hashmap');
 var bodyParser = require('body-parser');
 var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
+var unsubscription = require('./Proxy/Unsubscription');
 
 var app = express( );
 var map = new HashMap();
@@ -27,6 +28,7 @@ global.fiwareIP = '';
 global.yellowTurtleIP = '';
 global.proxyIP = ''; // 프록시를 사용하는 장소에 따라 IP를 수정해 주어야 한다.
 global.proxyPort = '';
+global.subscriptionActive = '';
 global.entityNameArray = [];
 global.entityTypeArray = [];
 global.randomValueBase64 = function(len) {
@@ -52,6 +54,7 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
         yellowTurtleIP = conf['yellowTurtleIP'];
         proxyIP = conf['proxyIP']; // 프록시를 사용하는 장소에 따라 IP를 수정해 주어야 한다.
         proxyPort = conf['proxyPort'];
+        subscriptionActive = conf['subscriptionActive'];
 
         for(var i = 0; i < objLength; i++) {
             var device = deviceInfo[Object.keys(deviceInfo)[i]];
@@ -60,16 +63,21 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
             entityTypeArray[i] = device['entity_Type'];// Fiware에 등록된 entityType를 미리 알고 있다고 가정하고 저장한다.
         }
 
-        // Server start!!
-        http.createServer(app).listen(proxyPort, function( ) {
-            console.log('Server running at ' + proxyIP);
+        fs.readFile('subList.txt', 'utf-8', function (err, data) {
+            if (err) {
+                console.log("FATAL An error occurred trying to read in the file: " + err);
+                console.log("error : set to default for configuration");
+            } else {
+                var subIdArray = data.split("\n");
 
-            // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
-            var fiwareInfo = new Entity( );
-            fiwareInfo.setEntityName(entityNameArray);
-            fiwareInfo.setEntityType(entityTypeArray);
-
-            register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+                if(subIdArray.length > 0 && subIdArray[0] != '') {
+                    console.log('Subscription Delete start....');
+                    unsubscription.unsubscriptionFiwareDevice(subIdArray);
+                }
+                else {
+                    serverCreate( );
+                }
+            }
         });
     }
 });
@@ -95,6 +103,20 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
     } else
         update.updateFiwareInfo(request, response);
 });
+
+exports.serverCreate = function( ) {
+    // Server start!!
+    http.createServer(app).listen(proxyPort, function( ) {
+        console.log('Server running at ' + proxyIP);
+
+        // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
+        var fiwareInfo = new Entity( );
+        fiwareInfo.setEntityName(entityNameArray);
+        fiwareInfo.setEntityType(entityTypeArray);
+
+        // register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+    });
+}
 
 function Entity( ) {
     this.entityName = [];

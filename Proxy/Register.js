@@ -4,10 +4,7 @@
  */
 
 // extract the modules
-var fs = require('fs');
 var requestToAnotherServer = require('request');
-var unsubscription = require('./Unsubscription');
-
 var AEName = ''; // 공통적으로 사용하는 AE를 정의한다.
 var AEType = ''; // 공통적으로 사용하는 AE Type을 정의한다.
 var AECount = 0; // 생성되는 AE의 개수를 확인하기 위하여 사용한다.
@@ -70,8 +67,10 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
                         console.log("********** All Entity Created ***********");
                         console.log('*****************************************')
 
-                        // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
-                        subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
+                        if(subscriptionActive == '1') {
+                            // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
+                            subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
+                        }
                     }
                 }
             } else { // contentInstance의 등록이 실패하였을때 실행하는 부분 주로 409 에러를 발생시킨다.
@@ -258,19 +257,5 @@ var getFiwareInfo = function(fiwareInfo){
 };
 
 exports.fiwareDeviceRegistration = function(fiwareInfo) {
-    fs.readFile('subList.txt', 'utf-8', function (err, data) {
-        if (err) {
-            console.log("FATAL An error occurred trying to read in the file: " + err);
-            console.log("error : set to default for configuration");
-        } else {
-            var subIdArray = data.split("\n");
-
-            if(subIdArray.length > 0) {
-                unsubscription.unsubscriptionFiwareDevice(subIdArray);
-                setTimeout(getFiwareInfo(fiwareInfo), 10000);  // Subscription삭제가 끝내면 그때 등록을 시작한다.
-            } else {
-                getFiwareInfo(fiwareInfo);
-            }
-        }
-    });
+    getFiwareInfo(fiwareInfo);
 }

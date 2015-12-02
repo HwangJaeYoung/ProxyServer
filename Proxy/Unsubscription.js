@@ -4,6 +4,7 @@
  */
 
 var fs = require('fs');
+var useAppFunction = require('../app.js');
 var requestToAnotherServer = require('request');
 var unsubscriptionCount = 0;
 
@@ -35,6 +36,7 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
                         console.log('FATAL An error occurred trying to write in the file: ' + err);
                     } else {
                         console.log('Data registration success!!');
+                        useAppFunction.serverCreate( );
                     }
                 });
             }
