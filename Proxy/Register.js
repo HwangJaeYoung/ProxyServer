@@ -86,7 +86,7 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
     });
 };
 
-var subscriptionToContextBroker = function (fiwareInfo, conflict) {
+var subscriptionToContextBroker = function (fiwareInfo) {
 
     var entityName = fiwareInfo.getEntityName( );
     var entityType = fiwareInfo.getEntityType( );
@@ -170,19 +170,15 @@ var subscriptionToContextBroker = function (fiwareInfo, conflict) {
                     if(subscriptionResponse.statusCode == '200') {
                         console.log("FiwareDevice Subscription Success");
 
-                        if(conflict == 'conflict') {
-                            getFiwareInfo(fiwareInfo);
+                        if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
+                            // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
+                            subscriptionCount++;
+                            subscriptionToContextBroker(fiwareInfo);
                         } else {
-                            if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
-                                // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
-                                subscriptionCount++;
-                                subscriptionToContextBroker(fiwareInfo);
-                            } else {
-                                // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
-                                console.log('*****************************************');
-                                console.log("******** Subscription All Create ********");
-                                console.log('*****************************************');
-                            }
+                            // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
+                            console.log('*****************************************');
+                            console.log("******** Subscription All Create ********");
+                            console.log('*****************************************');
                         }
                     } else { // Subscription 신청을 실패 하였을 때 다시 시도한다.
                         subscriptionToContextBroker(fiwareInfo);

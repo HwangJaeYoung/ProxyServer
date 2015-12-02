@@ -6,6 +6,7 @@
 var fs = require('fs');
 var requestToAnotherServer = require('request');
 var unsubscriptionCount = 0;
+var retryCount = 0;
 
 var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
     // ********************** unsubscription을 하기 위해 ContextBroker에 요청을한다. ***************************
@@ -38,8 +39,13 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
                 });
             }
         } else { // Entity Unsubscription 중간에 실패할 경우
-            console.log('******* Retry unsubscription *******');
-            unsubscriptionCallback(subIdArray, unsubscriptionFunction);
+            if (retryCount < 10) { // 최대 retry횟수를 정의한다.
+                console.log('******* Retry unsubscription : ' + retryCount + ' *******');
+                retryCount++;
+                unsubscriptionCallback(subIdArray, unsubscriptionFunction);
+            } else { // 최대 retry 횟수를 초과하였을 때는 종료를 한다.
+                return;
+            }
         }
     });
 };

@@ -5,6 +5,7 @@
 
 // extract the modules
 var requestToAnotherServer = require('request');
+var retryCount = 0;
 
 // AE를 생성한 후에 여러개의 attribute들이 있을 수 있는데 반복적으로 업데이트 하기 위한 함수이다.
 var updateFunction = function(response, entityName, attributeName, type, value, subscriptionCountPram, updateCallback) {
@@ -53,8 +54,13 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                 }
             } else { // 201, 409가 아닌 기타오류 발생시에는 등록을 재시도 한다.
                 console.log('StatusCode : ' + contentInstanceResponse.statusCode);
-                // console.log('******* Retry update operation to YellowTurtle *******');
-                // updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
+                if (retryCount < 10) { // 최대 retry횟수를 정의한다.
+                    console.log('******* Retry update operation to YellowTurtle : ' + retryCount + ' *******');
+                    retryCount++;
+                    updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
+                } else { // 최대 retry 횟수를 초과하였을 때는 종료를 한다.
+                    return;
+                }
             }
         } else {
             if(error != null) {
