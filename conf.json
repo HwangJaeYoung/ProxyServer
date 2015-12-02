@@ -2,39 +2,15 @@
     "proxy:conf": {
         "fiwareService": "egmsmartcity",
         "fiwareServicePath": "/egmsmartcitypath",
-        "fiwareIP": "http://egmcb.ddns.net:1026",
+        "fiwareIP": "http://130.206.80.40:1026",
         "yellowTurtleIP" : "http://203.253.128.151:7579",
         "proxyIP" : "http://52.192.180.105",
         "proxyPort" : "62590",
-        "subscriptionActive" : "0",
+        "subscriptionActive" : "1",
         "deviceInfo": {
-            "device1" : {
-                "entity_Name" : "sensors:Barrier1",
-                "entity_Type" : "sensors"
-            },
-            "device2" : {
-                "entity_Name" : "sensors:streetlight1",
-                "entity_Type" : "sensors"
-            },
-            "device3" : {
-                "entity_Name" : "sensors:streetlight2",
-                "entity_Type" : "sensors"
-            },
-            "device4" : {
-                "entity_Name" : "sensors:streetlight3",
-                "entity_Type" : "sensors"
-            },
-            "device5" : {
-                "entity_Name" : "sensors:Proximity1",
-                "entity_Type" : "sensors"
-            },
-            "device6" : {
-                "entity_Name" : "sensors:Proximity2",
-                "entity_Type" : "sensors"
-            },
-            "device7" : {
-                "entity_Name" : "sensors:Light1",
-                "entity_Type" : "sensors"
+            "device1": {
+                "entity_Name": "DemoEntity",
+                "entity_Type": "thing"
             }
         }
     }
