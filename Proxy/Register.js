@@ -86,7 +86,7 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
     });
 };
 
-var subscriptionToContextBroker = function (fiwareInfo) {
+var subscriptionToContextBroker = function (fiwareInfo, conflict) {
 
     var entityName = fiwareInfo.getEntityName( );
     var entityType = fiwareInfo.getEntityType( );
@@ -174,15 +174,19 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                     if(subscriptionResponse.statusCode == '200') {
                         console.log("FiwareDevice Subscription Success");
 
-                        if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
-                            // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
-                            subscriptionCount++;
-                            subscriptionToContextBroker(fiwareInfo);
+                        if(conflict == 'conflict') {
+                            getFiwareInfo(fiwareInfo);
                         } else {
-                            // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
-                            console.log('*****************************************')
-                            console.log("******** Subscription All Create ********");
-                            console.log('*****************************************');
+                            if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
+                                // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
+                                subscriptionCount++;
+                                subscriptionToContextBroker(fiwareInfo);
+                            } else {
+                                // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
+                                console.log('*****************************************')
+                                console.log("******** Subscription All Create ********");
+                                console.log('*****************************************');
+                            }
                         }
                     } else { // Subscription 신청을 실패 하였을 때 다시 시도한다.
                         subscriptionToContextBroker(fiwareInfo);
@@ -272,6 +276,11 @@ var getFiwareInfo = function(fiwareInfo){
                     if(AECount < fiwareInfo.getEntityNameLength( ) - 1) {
                         AECount++;
                         getFiwareInfo(fiwareInfo);
+                    } else {
+                        if(subscriptionActive == '1') {
+                            // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
+                            subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
+                        }
                     }
                 } else { // 기타오류일 경우에는 다시 등록을 요청한다.
                     console.log('******* Retry device registration to YellowTurtle *******');

@@ -53,11 +53,10 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
         yellowTurtleIP = conf['yellowTurtleIP'];
         proxyIP = conf['proxyIP']; // 프록시를 사용하는 장소에 따라 IP를 수정해 주어야 한다.
         proxyPort = conf['proxyPort'];
-        subscriptionActive = conf['subscriptionActive'];
+        subscriptionActive = conf['subscriptionActive']; // 활성화 되어야만 Subscription을 신청한다.
 
         for(var i = 0; i < objLength; i++) {
             var device = deviceInfo[Object.keys(deviceInfo)[i]];
-
             entityNameArray[i] = device['entity_Name'];// Fiware에 등록된 entityID를 미리 알고 있다고 가정하고 저장한다.
             entityTypeArray[i] = device['entity_Type'];// Fiware에 등록된 entityType를 미리 알고 있다고 가정하고 저장한다.
         }
@@ -67,13 +66,14 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
                 console.log("FATAL An error occurred trying to read in the file: " + err);
                 console.log("error : set to default for configuration");
             } else {
-                var subIdArray = data.split("\n");
+                var subIdArray = data.split("\n"); // Subscription ID들은 개행을 기준으로 나눠져 있다.
 
                 // subscriptionList에 데이터가 있을 경우에
+                // 공백을 확인하는 이유는 공백도 하나의 문자로 체크하여 반환하기 때문이다.
                 if(subIdArray.length > 0 && subIdArray[0] != '') {
                     console.log('Subscription Delete start....');
-                    //unsubscription.unsubscriptionFiwareDevice(subIdArray); // unsubscription을 시작한다.
-                    // unsubscription을 했음에도 불구하고 Fiware에서 notification을 보내는 경우가 있기 때문에 10초 뒤에 서버를 실행한다.
+                    unsubscription.unsubscriptionFiwareDevice(subIdArray); // unsubscription을 시작한다.
+
                     setTimeout(function( ) {
                         serverCreate( ); // 서버의 실행
                     }, 10000);
@@ -102,7 +102,7 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
 
         map.set(subId, true);
         /* 초기에 subscription을 신청할 때 지정한 시간(ex. 15s)이 지나지 않았음에도
-         바로 호출되는 경우가 있어 방지 하기위한 부분
+         바로 호출되는 경우가 있어 방지 하기위한 부분 + subscriptionList.txt에 한 번만 쓰기위해서 구현
          */
     } else
         update.updateFiwareInfo(request, response);
@@ -113,12 +113,11 @@ var serverCreate = function( ) {
     http.createServer(app).listen(proxyPort, function( ) {
         console.log('Server running at ' + proxyIP);
 
-        // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
         var fiwareInfo = new Entity( );
         fiwareInfo.setEntityName(entityNameArray);
         fiwareInfo.setEntityType(entityTypeArray);
 
-        //register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+        register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
     });
 }
 
