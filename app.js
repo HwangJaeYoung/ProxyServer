@@ -69,13 +69,17 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
             } else {
                 var subIdArray = data.split("\n");
 
+                // subscriptionList에 데이터가 있을 경우에
                 if(subIdArray.length > 0 && subIdArray[0] != '') {
                     console.log('Subscription Delete start....');
-                    unsubscription.unsubscriptionFiwareDevice(subIdArray);
-                    setTimeout(serverCreate( ), 10000);
+                    //unsubscription.unsubscriptionFiwareDevice(subIdArray); // unsubscription을 시작한다.
+                    // unsubscription을 했음에도 불구하고 Fiware에서 notification을 보내는 경우가 있기 때문에 10초 뒤에 서버를 실행한다.
+                    setTimeout(function( ) {
+                        serverCreate( ); // 서버의 실행
+                    }, 10000);
                 }
                 else {
-                    serverCreate( );
+                    serverCreate( ); // 서버의 실행
                 }
             }
         });
@@ -92,7 +96,7 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
             if(err) {
                 console.log('FATAL An error occurred trying to write in the file: ' + err);
             } else {
-                console.log('Data registration success!!');
+                // console.log('Data registration success!!');
             }
         });
 
@@ -114,7 +118,7 @@ var serverCreate = function( ) {
         fiwareInfo.setEntityName(entityNameArray);
         fiwareInfo.setEntityType(entityTypeArray);
 
-        register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+        //register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
     });
 }
 
