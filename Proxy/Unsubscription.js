@@ -33,11 +33,12 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
                         console.log('FATAL An error occurred trying to write in the file: ' + err);
                     else {
                         console.log('******* Unsubscription Success *******');
+                        console.log('After 10 seconds, Server is run...');
                     }
                 });
             }
         } else { // Entity Unsubscription 중간에 실패할 경우
-            console.log('******* Retry unsubscription delete *******');
+            console.log('******* Retry unsubscription *******');
             unsubscriptionCallback(subIdArray, unsubscriptionFunction);
         }
     });

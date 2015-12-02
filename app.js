@@ -75,7 +75,6 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
                     unsubscription.unsubscriptionFiwareDevice(subIdArray); // unsubscription을 시작한다.
 
                     setTimeout(function( ) {
-                        console.log('After 10 seconds, Server is run...');
                         serverCreate( ); // 서버의 실행
                     }, 10000);
                 }

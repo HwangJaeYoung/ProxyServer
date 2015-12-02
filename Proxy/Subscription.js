@@ -52,8 +52,9 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                     subscriptionCount = 0; // 모두 다 업데이트 하였으므로 초기화 한다.
                 }
             } else { // 201, 409가 아닌 기타오류 발생시에는 등록을 재시도 한다.
-                console.log('******* Retry update operation to YellowTurtle *******');
-                updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
+                console.log('StatusCode : ' + contentInstanceResponse.statusCode);
+                // console.log('******* Retry update operation to YellowTurtle *******');
+                // updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
             }
         } else {
             if(error != null) {
