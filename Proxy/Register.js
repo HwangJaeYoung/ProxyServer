@@ -63,9 +63,9 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
                         AECount++;
                         aeCreateCallback(fiwareInfo);
                     } else { // 모든 AE가 등록이 되었을 때 수행하는 부분
-                        console.log('*****************************************')
+                        console.log('*****************************************');
                         console.log("********** All Entity Created ***********");
-                        console.log('*****************************************')
+                        console.log('*****************************************');
 
                         if(subscriptionActive == '1') {
                             // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
@@ -183,7 +183,7 @@ var subscriptionToContextBroker = function (fiwareInfo, conflict) {
                                 subscriptionToContextBroker(fiwareInfo);
                             } else {
                                 // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
-                                console.log('*****************************************')
+                                console.log('*****************************************');
                                 console.log("******** Subscription All Create ********");
                                 console.log('*****************************************');
                             }
@@ -277,6 +277,10 @@ var getFiwareInfo = function(fiwareInfo){
                         AECount++;
                         getFiwareInfo(fiwareInfo);
                     } else {
+                        console.log('*****************************************');
+                        console.log("********** All Entity Created ***********");
+                        console.log('*****************************************');
+
                         if(subscriptionActive == '1') {
                             // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
                             subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
