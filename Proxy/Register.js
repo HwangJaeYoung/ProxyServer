@@ -73,10 +73,14 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
                         }
                     }
                 }
+            } else if (contentInstanceResponse.statusCode == 409) { // 이미 있을 때에는 다음의 것을 등록한다.
+                if(registerCount < attributeName.length - 1) {
+                    registerCount++;
+                    // 아직 등록되지 않은 attribute들이 있으므로 registerCallback 함수를 이용하여 나머지 attribute들을 등록한다.
+                    registerCallback(attributeName, type, value, registerFunction, aeCreateCallback, fiwareInfo);
+                }
             } else { // contentInstance의 등록이 실패하였을때 실행하는 부분 주로 409 에러를 발생시킨다.
-                console.log('*****************************************')
-                console.log("Create Error : " + contentInstanceResponse.statusCode);
-                console.log('*****************************************')
+                registerFunction(attributeName, type, value, registerCallback, aeCreateCallback, fiwareInfo);
             }
         });
     });
@@ -110,7 +114,7 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                 ]
             }
         }, function (error, fiwareResponse, body) {
-            if (!error && fiwareResponse.statusCode == 200) {
+            if (fiwareResponse.statusCode == 200) {
                 // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
                 var contextResponses = body.contextResponses
                 var contextElement = contextResponses[0].contextElement;
@@ -167,19 +171,25 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                         ]
                     }
                 }, function (error, subscriptionResponse, body) {
-                    console.log("FiwareDevice Subscription Success");
+                    if(subscriptionResponse.statusCode == '200') {
+                        console.log("FiwareDevice Subscription Success");
 
-                    if(subscriptionCount < fiwareInfo.getEntityNameLength( ) - 1) {
-                        // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
-                        subscriptionCount++;
+                        if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
+                            // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
+                            subscriptionCount++;
+                            subscriptionToContextBroker(fiwareInfo);
+                        } else {
+                            // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
+                            console.log('*****************************************')
+                            console.log("******** Subscription All Create ********");
+                            console.log('*****************************************');
+                        }
+                    } else { // Subscription 신청을 실패 하였을 때 다시 시도한다.
                         subscriptionToContextBroker(fiwareInfo);
-                    } else {
-                        // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
-                        console.log('*****************************************')
-                        console.log("******** Subscription All Create ********");
-                        console.log('*****************************************');
                     }
                 });
+            } else { // Fiware에 접근을 하지 못하였을 때 다시요청한다.
+                subscriptionToContextBroker(fiwareInfo);
             }
     });
 }
@@ -214,7 +224,7 @@ var getFiwareInfo = function(fiwareInfo){
             ]
         }
     }, function (error, fiwareResponse, body) {
-        if (!error && fiwareResponse.statusCode == 200) {
+        if (fiwareResponse.statusCode == 200) {
             // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
             var contextResponses = body.contextResponses
             var contextElement = contextResponses[0].contextElement;
@@ -258,12 +268,18 @@ var getFiwareInfo = function(fiwareInfo){
                 console.log("AE create status : " + AECreateResponse.statusCode);
                 if(AECreateResponse.statusCode == '201') {
                     registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
-                } else if(AECreateResponse.statusCode == '409') {
-                    getFiwareInfo(fiwareInfo);
-                } else {
-
+                } else if(AECreateResponse.statusCode == '409') { // 이미 만들어져 있을경우는 다음 디바이스를 등록한다.
+                    if(AECount < fiwareInfo.getEntityNameLength( ) - 1) {
+                        AECount++;
+                        getFiwareInfo(fiwareInfo);
+                    }
+                } else { // 기타오류일 경우에는 다시 등록을 요청한다.
+                    console.log('******* Retry device registration to YellowTurtle *******');
+                    registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
                 }
             });
+        } else { // Fiware에서 잘못된 응답을 받았을 경우는 다시 시도한다.
+            getFiwareInfo(fiwareInfo);
         }
     });
 };

@@ -12,7 +12,6 @@ var bodyParser = require('body-parser');
 var register = require('./Proxy/Register');
 var update = require('./Proxy/Subscription');
 var unsubscription = require('./Proxy/Unsubscription');
-
 var app = express( );
 var map = new HashMap();
 const crypto = require('crypto');
@@ -73,19 +72,10 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
                 if(subIdArray.length > 0 && subIdArray[0] != '') {
                     console.log('Subscription Delete start....');
                     unsubscription.unsubscriptionFiwareDevice(subIdArray);
+                    setTimeout(serverCreate( ), 10000);
                 }
                 else {
-                    // Server start!!
-                    http.createServer(app).listen(proxyPort, function( ) {
-                        console.log('Server running at ' + proxyIP);
-
-                        // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
-                        var fiwareInfo = new Entity( );
-                        fiwareInfo.setEntityName(entityNameArray);
-                        fiwareInfo.setEntityType(entityTypeArray);
-
-                        register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
-                    });
+                    serverCreate( );
                 }
             }
         });
@@ -99,7 +89,7 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
     if(map.has(subId) == false) {
         // 등록한 SubscriptionID를 저장하기 위해서 텍스트 파일을 사용한다.
         fs.appendFile('subscriptionList.txt', subId, function (err) {
-            if(error) {
+            if(err) {
                 console.log('FATAL An error occurred trying to write in the file: ' + err);
             } else {
                 console.log('Data registration success!!');
@@ -114,7 +104,7 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
         update.updateFiwareInfo(request, response);
 });
 
-exports.serverCreate = function( ) {
+var serverCreate = function( ) {
     // Server start!!
     http.createServer(app).listen(proxyPort, function( ) {
         console.log('Server running at ' + proxyIP);

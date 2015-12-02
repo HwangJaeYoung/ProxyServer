@@ -4,7 +4,6 @@
  */
 
 var fs = require('fs');
-var useAppFunction = require('../app.js');
 var requestToAnotherServer = require('request');
 var unsubscriptionCount = 0;
 
@@ -24,22 +23,22 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
             "subscriptionId" : subIdArray[unsubscriptionCount]
         }
     }, function (error, unsubscriptionResponse, body) {
-        if (!error && unsubscriptionResponse.statusCode == 200) {
-            if (unsubscriptionCount < subIdArray.length - 2) {
+        if (unsubscriptionResponse.statusCode == 200) { // 삭제 완료되었을 때
+            if (unsubscriptionCount < subIdArray.length - 2) { // 더 삭제할 것이 있는지 확인한다.
                 unsubscriptionCount++;
                 unsubscriptionCallback(subIdArray, unsubscriptionFunction);
             } else { // 모든 Entity의 Unsubscription 성공
-                console.log('******* Unsubscription Success *******');
-
                 fs.writeFile('subscriptionList.txt', '', function (error) {
                     if(error)
                         console.log('FATAL An error occurred trying to write in the file: ' + err);
-                    else
-                        useAppFunction.serverCreate( );
+                    else {
+                        console.log('******* Unsubscription Success *******');
+                    }
                 });
             }
         } else { // Entity Unsubscription 중간에 실패할 경우
-            console.log('******* Unsubscription error *******');
+            console.log('******* Retry unsubscription delete *******');
+            unsubscriptionCallback(subIdArray, unsubscriptionFunction);
         }
     });
 };

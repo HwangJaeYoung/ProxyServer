@@ -44,24 +44,20 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
         }
     }, function (error, contentInstanceResponse, body) {
         if(typeof(contentInstanceResponse) !== 'undefined') {
-            if (contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
-
+            if (contentInstanceResponse.statusCode == '201' || contentInstanceResponse.statusCode == '409') { // 정상적으로 등록이 다 되었을 때
                 if (subscriptionCount < attributeName.length - 1) {
                     subscriptionCount++;
                     updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
                 } else {
                     subscriptionCount = 0; // 모두 다 업데이트 하였으므로 초기화 한다.
                 }
-            } else {
-                // 주로 409 Conflict에러가 발생한다.
-                console.log('****************** error status **************** : ' + contentInstanceResponse.statusCode);
-                process.exit(1); // 에러가 발생했을 경우 서버를 종료시킨다.
+            } else { // 201, 409가 아닌 기타오류 발생시에는 등록을 재시도 한다.
+                console.log('******* Retry update operation to YellowTurtle *******');
+                updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);
             }
         } else {
             if(error != null) {
-                console.log('****************** error status **************** : ' + error);
-                console.log('****************** error code ****************** : ' + error.code);
-                process.exit(1); // 에러가 발생했을 경우 서버를 종료시킨다.
+                console.log('******* YellowTurtle not response *******' + error.code);
             }
         }
     });
