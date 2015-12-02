@@ -28,8 +28,8 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
                 unsubscriptionCount++;
                 unsubscriptionCallback(subIdArray, unsubscriptionFunction);
             } else { // 모든 Entity의 Unsubscription 성공
-                fs.writeFile('subscriptionList.txt', '', function (error) {
-                    if(error)
+                fs.writeFile('subscriptionList.txt', '', function (err) {
+                    if(err)
                         console.log('FATAL An error occurred trying to write in the file: ' + err);
                     else {
                         console.log('******* Unsubscription Success *******');

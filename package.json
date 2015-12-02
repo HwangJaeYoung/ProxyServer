@@ -11,8 +11,8 @@
     "crypto": "0.0.3",
     "express": "3.4.7",
     "mysql": "2.9.0",
-    "hashmap":"2.0.4",
-    "request":  "2.67.0"
+    "hashmap": "2.0.4",
+    "request": "2.67.0"
   },
   "author": "HwangJaeYoung",
   "license": "ISC"
