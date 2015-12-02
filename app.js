@@ -63,7 +63,7 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
             entityTypeArray[i] = device['entity_Type'];// Fiware에 등록된 entityType를 미리 알고 있다고 가정하고 저장한다.
         }
 
-        fs.readFile('subList.txt', 'utf-8', function (err, data) {
+        fs.readFile('subscriptionList.txt', 'utf-8', function (err, data) {
             if (err) {
                 console.log("FATAL An error occurred trying to read in the file: " + err);
                 console.log("error : set to default for configuration");
@@ -75,7 +75,17 @@ fs.readFile('conf.json', 'utf-8', function (err, data) {
                     unsubscription.unsubscriptionFiwareDevice(subIdArray);
                 }
                 else {
-                    serverCreate( );
+                    // Server start!!
+                    http.createServer(app).listen(proxyPort, function( ) {
+                        console.log('Server running at ' + proxyIP);
+
+                        // 현재 Fiware의 ContextBroker에는 4개의 Entity가 저장되어 있다고 가정한다.
+                        var fiwareInfo = new Entity( );
+                        fiwareInfo.setEntityName(entityNameArray);
+                        fiwareInfo.setEntityType(entityTypeArray);
+
+                        register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+                    });
                 }
             }
         });
@@ -88,7 +98,7 @@ app.post('/FiwareNotificationEndpoint', function(request, response) {
 
     if(map.has(subId) == false) {
         // 등록한 SubscriptionID를 저장하기 위해서 텍스트 파일을 사용한다.
-        fs.appendFile('subList.txt', subId, function (err) {
+        fs.appendFile('subscriptionList.txt', subId, function (err) {
             if(error) {
                 console.log('FATAL An error occurred trying to write in the file: ' + err);
             } else {
@@ -114,7 +124,7 @@ exports.serverCreate = function( ) {
         fiwareInfo.setEntityName(entityNameArray);
         fiwareInfo.setEntityType(entityTypeArray);
 
-        // register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
+        register.fiwareDeviceRegistration(fiwareInfo) // 서버가 동작되자마자 Fiware 디바이스의 등록을 시작한다.
     });
 }
 

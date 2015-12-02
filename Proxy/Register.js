@@ -120,7 +120,10 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                 var count = 0;
 
                 for (var i = 0; i < attributes.length; i++) {
-                    if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name') {
+                    var attrName = attributes[i].name;
+                    var subString = attrName.substring(attrName.length - 6, attrName.length);
+
+                    if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name' || subString == 'status') {
                         continue;
                     } else {
                         // 리소스 등록에 필요한 데이터 파싱
@@ -221,7 +224,10 @@ var getFiwareInfo = function(fiwareInfo){
             var count = 0;
 
             for (var i = 0; i < attributes.length; i++) {
-                if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name') {
+                var attrName = attributes[i].name;
+                var subString = attrName.substring(attrName.length - 6, attrName.length);
+
+                if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name' || subString == 'status') {
                     continue;
                 } else {
                     // 리소스 등록에 필요한 데이터 파싱
@@ -250,7 +256,13 @@ var getFiwareInfo = function(fiwareInfo){
                 }
             }, function(error, AECreateResponse, body) {
                 console.log("AE create status : " + AECreateResponse.statusCode);
-                registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
+                if(AECreateResponse.statusCode == '201') {
+                    registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
+                } else if(AECreateResponse.statusCode == '409') {
+                    getFiwareInfo(fiwareInfo);
+                } else {
+
+                }
             });
         }
     });

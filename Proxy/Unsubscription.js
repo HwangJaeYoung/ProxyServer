@@ -31,13 +31,11 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
             } else { // 모든 Entity의 Unsubscription 성공
                 console.log('******* Unsubscription Success *******');
 
-                fs.writeFile('subList.txt', '', function (error) {
-                    if(error) {
+                fs.writeFile('subscriptionList.txt', '', function (error) {
+                    if(error)
                         console.log('FATAL An error occurred trying to write in the file: ' + err);
-                    } else {
-                        console.log('Data registration success!!');
+                    else
                         useAppFunction.serverCreate( );
-                    }
                 });
             }
         } else { // Entity Unsubscription 중간에 실패할 경우
