@@ -183,7 +183,7 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                     subscriptionToContextBroker(fiwareInfo);
                 }
             } else { // fiware에서 응답이 오지 않았을 경우에는 다음을 수행한다.
-                console.log("********** Retry connect the Fiware... ***********");
+                console.log("Connection Error : ********** Retry connect the Fiware... ***********");
                 subscriptionToContextBroker(fiwareInfo);
             }
     });
@@ -288,7 +288,7 @@ var getFiwareInfo = function(fiwareInfo){
                 getFiwareInfo(fiwareInfo);
             }
         } else { // fiware에서 응답이 오지 않았을 경우에는 다음을 수행한다.
-            console.log("********** Retry connect the Fiware... ***********");
+            console.log("Connection Error : ********** Retry connect the Fiware... ***********");
             getFiwareInfo(fiwareInfo);
         }
     });
