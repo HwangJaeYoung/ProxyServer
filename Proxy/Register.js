@@ -108,77 +108,82 @@ var subscriptionToContextBroker = function (fiwareInfo) {
                 ]
             }
         }, function (error, fiwareResponse, body) {
-            if (fiwareResponse.statusCode == 200) {
-                // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
-                var contextResponses = body.contextResponses
-                var contextElement = contextResponses[0].contextElement;
-                var attributes = contextElement.attributes;
+            if(typeof(fiwareResponse) !== 'undefined') { // fiware에서 응답이 왔을 경우에는 다음을 수행한다.
+                if (fiwareResponse.statusCode == 200) {
+                    // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
+                    var contextResponses = body.contextResponses
+                    var contextElement = contextResponses[0].contextElement;
+                    var attributes = contextElement.attributes;
 
-                var attributeName = [], type = [], value = []; // 특정 attribute를 저장하기위한 배열
-                var count = 0;
+                    var attributeName = [], type = [], value = []; // 특정 attribute를 저장하기위한 배열
+                    var count = 0;
 
-                for (var i = 0; i < attributes.length; i++) {
-                    var attrName = attributes[i].name;
-                    var subString = attrName.substring(attrName.length - 6, attrName.length);
+                    for (var i = 0; i < attributes.length; i++) {
+                        var attrName = attributes[i].name;
+                        var subString = attrName.substring(attrName.length - 6, attrName.length);
 
-                    if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name' || subString == 'status') {
-                        continue;
-                    } else {
-                        // 리소스 등록에 필요한 데이터 파싱
-                        attributeName[count] = attributes[i].name;
-                        type[count] = attributes[i].type;
-                        value[count] = attributes[i].value;
-                        count++;
-                    }
-                }
-
-                requestToAnotherServer({
-                    url: fiwareIP + '/v1/subscribeContext',
-                    method: 'POST',
-                    json: true,
-                    headers: { // fiware접근에 필요한 기본 헤더의 구조
-                        'content-type': 'application/json',
-                        'Accept': 'application/json',
-                        'Fiware-Service': fiwareService,
-                        'Fiware-ServicePath': fiwareServicePath
-                    },
-                    body: { // subscription를 등록할때 필요한 payload json 구조를 작성한다.
-                        "entities": [
-                            {
-                                "type": AEType,
-                                "isPattern": "false",
-                                "id": "" + AEName
-                            }
-                        ],
-                        "attributes": attributeName,
-                        "reference": proxyIP + ':' + proxyPort + '/FiwareNotificationEndpoint', // 나중에 endpoint를 지정한다.
-                        "duration": "P1M",
-                        "notifyConditions": [
-                            {
-                                "type": "ONCHANGE",
-                                "condValues": attributeName
-                            }
-                        ]
-                    }
-                }, function (error, subscriptionResponse, body) {
-                    if(subscriptionResponse.statusCode == '200') {
-                        console.log("FiwareDevice Subscription Success");
-
-                        if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
-                            // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
-                            subscriptionCount++;
-                            subscriptionToContextBroker(fiwareInfo);
+                        if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name' || subString == 'status') {
+                            continue;
                         } else {
-                            // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
-                            console.log('*****************************************');
-                            console.log("******** Subscription All Create ********");
-                            console.log('*****************************************');
+                            // 리소스 등록에 필요한 데이터 파싱
+                            attributeName[count] = attributes[i].name;
+                            type[count] = attributes[i].type;
+                            value[count] = attributes[i].value;
+                            count++;
                         }
-                    } else { // Subscription 신청을 실패 하였을 때 다시 시도한다.
-                        subscriptionToContextBroker(fiwareInfo);
                     }
-                });
-            } else { // Fiware에 접근을 하지 못하였을 때 다시요청한다.
+
+                    requestToAnotherServer({
+                        url: fiwareIP + '/v1/subscribeContext',
+                        method: 'POST',
+                        json: true,
+                        headers: { // fiware접근에 필요한 기본 헤더의 구조
+                            'content-type': 'application/json',
+                            'Accept': 'application/json',
+                            'Fiware-Service': fiwareService,
+                            'Fiware-ServicePath': fiwareServicePath
+                        },
+                        body: { // subscription를 등록할때 필요한 payload json 구조를 작성한다.
+                            "entities": [
+                                {
+                                    "type": AEType,
+                                    "isPattern": "false",
+                                    "id": "" + AEName
+                                }
+                            ],
+                            "attributes": attributeName,
+                            "reference": proxyIP + ':' + proxyPort + '/FiwareNotificationEndpoint', // 나중에 endpoint를 지정한다.
+                            "duration": "P1M",
+                            "notifyConditions": [
+                                {
+                                    "type": "ONCHANGE",
+                                    "condValues": attributeName
+                                }
+                            ]
+                        }
+                    }, function (error, subscriptionResponse, body) {
+                        if (subscriptionResponse.statusCode == '200') {
+                            console.log("FiwareDevice Subscription Success");
+
+                            if (subscriptionCount < fiwareInfo.getEntityNameLength() - 1) {
+                                // 아직 Subscription 등록할 Entity들이 남아 있으므로 subscriptionToContextBroker 콜백함수를 사용하여 다시 등록한다.
+                                subscriptionCount++;
+                                subscriptionToContextBroker(fiwareInfo);
+                            } else {
+                                // 모든 Entity의 Subscription 등록을 마쳤을 때 수행하는 부분.
+                                console.log('*****************************************');
+                                console.log("******** Subscription All Create ********");
+                                console.log('*****************************************');
+                            }
+                        } else { // Subscription 신청을 실패 하였을 때 다시 시도한다.
+                            subscriptionToContextBroker(fiwareInfo);
+                        }
+                    });
+                } else { // Fiware에 접근을 하지 못하였을 때 다시요청한다.
+                    subscriptionToContextBroker(fiwareInfo);
+                }
+            } else { // fiware에서 응답이 오지 않았을 경우에는 다음을 수행한다.
+                console.log("********** Retry connect the Fiware... ***********");
                 subscriptionToContextBroker(fiwareInfo);
             }
     });
@@ -214,70 +219,76 @@ var getFiwareInfo = function(fiwareInfo){
             ]
         }
     }, function (error, fiwareResponse, body) {
-        if (fiwareResponse.statusCode == 200) {
-            // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
-            var contextResponses = body.contextResponses
-            var contextElement = contextResponses[0].contextElement;
-            var attributes = contextElement.attributes;
+        if(typeof(fiwareResponse) !== 'undefined') { // fiware에서 응답이 왔을 경우에는 다음을 수행한다.
+            if (fiwareResponse.statusCode == 200) {
+                // ContextBroker에서 리턴하는 json구조에 대한 파싱을 시작한다.
+                var contextResponses = body.contextResponses
+                var contextElement = contextResponses[0].contextElement;
+                var attributes = contextElement.attributes;
 
-            var attributeName = [], type = [], value = []; // 특정 attribute를 저장하기위한 배열
-            var count = 0;
+                var attributeName = [], type = [], value = []; // 특정 attribute를 저장하기위한 배열
+                var count = 0;
 
-            for (var i = 0; i < attributes.length; i++) {
-                var attrName = attributes[i].name;
-                var subString = attrName.substring(attrName.length - 6, attrName.length);
+                for (var i = 0; i < attributes.length; i++) {
+                    var attrName = attributes[i].name;
+                    var subString = attrName.substring(attrName.length - 6, attrName.length);
 
-                if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name' || subString == 'status') {
-                    continue;
-                } else {
-                    // 리소스 등록에 필요한 데이터 파싱
-                    attributeName[count] = attributes[i].name;
-                    type[count] = attributes[i].type;
-                    value[count] =  attributes[i].value;
-                    count++;
-                }
-            }
-
-            // ********************** AE에 등록을 시작한다. ***************************
-            requestToAnotherServer( { url :  yellowTurtleIP + '/mobius-yt',
-                method : 'POST',
-                json : true,
-                headers : { // Mobius에 AE등록을 위한 기본 헤더 구조
-                    'Accept' : 'application/json',
-                    'locale' : 'ko',
-                    'X-M2M-RI' : '12345',
-                    'X-M2M-Origin' : 'Origin',
-                    'X-M2M-NM' : AEName,
-                    'content-type' : 'application/vnd.onem2m-res+json; ty=2',
-                    'nmtype' : 'long'
-                },
-                body : { // NGSI10에 따른 payload이 구성이다.(queryContext)
-                    'App-ID': "0.2.481.2.0001.001.000111"
-                }
-            }, function(error, AECreateResponse, body) {
-                console.log("AE create status : " + AECreateResponse.statusCode);
-                if(AECreateResponse.statusCode == '201') {
-                    registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
-                } else if(AECreateResponse.statusCode == '409') { // 이미 만들어져 있을경우는 다음 디바이스를 등록한다.
-                    if(AECount < fiwareInfo.getEntityNameLength( ) - 1) {
-                        AECount++;
-                        getFiwareInfo(fiwareInfo);
+                    if (attributes[i].name == 'TimeInstant' || attributes[i].name == 'att_name' || subString == 'status') {
+                        continue;
                     } else {
-                        console.log('*****************************************');
-                        console.log("********** All Entity Created ***********");
-                        console.log('*****************************************');
-
-                        if(subscriptionActive == '1') {
-                            // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
-                            subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
-                        }
+                        // 리소스 등록에 필요한 데이터 파싱
+                        attributeName[count] = attributes[i].name;
+                        type[count] = attributes[i].type;
+                        value[count] = attributes[i].value;
+                        count++;
                     }
-                } else { // 기타오류일 경우에는 다시 등록을 요청한다.
-                    console.log('******* Retry device registration to YellowTurtle *******');
-                    getFiwareInfo(fiwareInfo);
                 }
-            });
-        } else { // Fiware에서 잘못된 응답을 받았을 경우는 다시 시도한다.
+
+                // ********************** AE에 등록을 시작한다. ***************************
+                requestToAnotherServer({
+                    url: yellowTurtleIP + '/mobius-yt',
+                    method: 'POST',
+                    json: true,
+                    headers: { // Mobius에 AE등록을 위한 기본 헤더 구조
+                        'Accept': 'application/json',
+                        'locale': 'ko',
+                        'X-M2M-RI': '12345',
+                        'X-M2M-Origin': 'Origin',
+                        'X-M2M-NM': AEName,
+                        'content-type': 'application/vnd.onem2m-res+json; ty=2',
+                        'nmtype': 'long'
+                    },
+                    body: { // NGSI10에 따른 payload이 구성이다.(queryContext)
+                        'App-ID': "0.2.481.2.0001.001.000111"
+                    }
+                }, function (error, AECreateResponse, body) {
+                    console.log("AE create status : " + AECreateResponse.statusCode);
+                    if (AECreateResponse.statusCode == '201') {
+                        registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
+                    } else if (AECreateResponse.statusCode == '409') { // 이미 만들어져 있을경우는 다음 디바이스를 등록한다.
+                        if (AECount < fiwareInfo.getEntityNameLength() - 1) {
+                            AECount++;
+                            getFiwareInfo(fiwareInfo);
+                        } else {
+                            console.log('*****************************************');
+                            console.log("********** All Entity Created ***********");
+                            console.log('*****************************************');
+
+                            if (subscriptionActive == '1') {
+                                // 모든 AE의 등록이 끝나고 나서 각 Entity에 대한 Subscription을 ContextBroker에 신청한다.
+                                subscriptionToContextBroker(fiwareInfo); // 등록한 EntityID목록을 매개변수로 넘겨준다.
+                            }
+                        }
+                    } else { // 기타오류일 경우에는 다시 등록을 요청한다.
+                        console.log('******* Retry device registration to YellowTurtle *******');
+                        getFiwareInfo(fiwareInfo);
+                    }
+                });
+            } else { // Fiware에서 잘못된 응답을 받았을 경우는 다시 시도한다.
+                getFiwareInfo(fiwareInfo);
+            }
+        } else { // fiware에서 응답이 오지 않았을 경우에는 다음을 수행한다.
+            console.log("********** Retry connect the Fiware... ***********");
             getFiwareInfo(fiwareInfo);
         }
     });
