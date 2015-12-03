@@ -15,10 +15,10 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
     var cur_d = new Date();
     var msec = '';
 
-    if((parseInt(cur_d.getMilliseconds(), 10)<10)) {
-        msec = ('00'+cur_d.getMilliseconds());
-    } else if((parseInt(cur_d.getMilliseconds(), 10)<100)) {
-        msec = ('0'+cur_d.getMilliseconds());
+    if((parseInt(cur_d.getMilliseconds(), 10) < 10)) {
+        msec = ('00' + cur_d.getMilliseconds());
+    } else if((parseInt(cur_d.getMilliseconds(), 10) < 100)) {
+        msec = ('0' + cur_d.getMilliseconds());
     } else {
         msec = cur_d.getMilliseconds();
     }
@@ -54,7 +54,8 @@ var updateFunction = function(response, entityName, attributeName, type, value, 
                 }
             } else { // 201, 409가 아닌 기타오류 발생시에는 등록을 재시도 한다.
                 console.log('StatusCode : ' + contentInstanceResponse.statusCode);
-                if (retryCount < 10) { // 최대 retry횟수를 정의한다.
+
+                if (retryCount < 5) { // 최대 retry횟수를 정의한다.
                     console.log('******* Retry update operation to YellowTurtle : ' + retryCount + ' *******');
                     retryCount++;
                     updateCallback(response, entityName, attributeName, type, value, subscriptionCount, updateFunction);

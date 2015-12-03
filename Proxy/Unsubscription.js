@@ -24,27 +24,33 @@ var unsubscriptionFunction = function(subIdArray, unsubscriptionCallback) {
             "subscriptionId" : subIdArray[unsubscriptionCount]
         }
     }, function (error, unsubscriptionResponse, body) {
-        if (unsubscriptionResponse.statusCode == 200) { // 삭제 완료되었을 때
-            if (unsubscriptionCount < subIdArray.length - 2) { // 더 삭제할 것이 있는지 확인한다.
-                unsubscriptionCount++;
-                unsubscriptionCallback(subIdArray, unsubscriptionFunction);
-            } else { // 모든 Entity의 Unsubscription 성공
-                fs.writeFile('subscriptionList.txt', '', function (err) {
-                    if(err)
-                        console.log('FATAL An error occurred trying to write in the file: ' + err);
-                    else {
-                        console.log('******* Unsubscription Success *******');
-                        console.log('After 10 seconds, Server is run...');
-                    }
-                });
+        if(typeof(unsubscriptionResponse) !== 'undefined') {
+            if (unsubscriptionResponse.statusCode == 200) { // 삭제 완료되었을 때
+                if (unsubscriptionCount < subIdArray.length - 2) { // 더 삭제할 것이 있는지 확인한다.
+                    unsubscriptionCount++;
+                    unsubscriptionCallback(subIdArray, unsubscriptionFunction);
+                } else { // 모든 Entity의 Unsubscription 성공
+                    fs.writeFile('subscriptionList.txt', '', function (err) {
+                        if (err)
+                            console.log('FATAL An error occurred trying to write in the file: ' + err);
+                        else {
+                            console.log('******* Unsubscription Success *******');
+                            console.log('After 10 seconds, Server is run...');
+                        }
+                    });
+                }
+            } else { // Entity Unsubscription 중간에 실패할 경우
+                if (retryCount < 5) { // 최대 retry횟수를 정의한다.
+                    console.log('******* Retry unsubscription : ' + retryCount + ' *******');
+                    retryCount++;
+                    unsubscriptionCallback(subIdArray, unsubscriptionFunction);
+                } else { // 최대 retry 횟수를 초과하였을 때는 종료를 한다.
+                    return;
+                }
             }
-        } else { // Entity Unsubscription 중간에 실패할 경우
-            if (retryCount < 10) { // 최대 retry횟수를 정의한다.
-                console.log('******* Retry unsubscription : ' + retryCount + ' *******');
-                retryCount++;
-                unsubscriptionCallback(subIdArray, unsubscriptionFunction);
-            } else { // 최대 retry 횟수를 초과하였을 때는 종료를 한다.
-                return;
+        } else {
+            if(error != null) {
+                console.log('******* YellowTurtle not response *******' + error.code);
             }
         }
     });

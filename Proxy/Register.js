@@ -50,7 +50,7 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
             }
         }, function(error, contentInstanceResponse, body) {
 
-            if(contentInstanceResponse.statusCode == 201) { // 정상적으로 등록이 다 되었을 때
+            if(contentInstanceResponse.statusCode == 201 || contentInstanceResponse.statusCode == 409) { // 정상적으로 등록이 다 되었을 때
                 if(registerCount < attributeName.length - 1) {
                     registerCount++;
                     // 아직 등록되지 않은 attribute들이 있으므로 registerCallback 함수를 이용하여 나머지 attribute들을 등록한다.
@@ -73,13 +73,7 @@ var registerFunction = function(attributeName, type, value, registerCallback, ae
                         }
                     }
                 }
-            } else if (contentInstanceResponse.statusCode == 409) { // 이미 있을 때에는 다음의 것을 등록한다.
-                if(registerCount < attributeName.length - 1) {
-                    registerCount++;
-                    // 아직 등록되지 않은 attribute들이 있으므로 registerCallback 함수를 이용하여 나머지 attribute들을 등록한다.
-                    registerCallback(attributeName, type, value, registerFunction, aeCreateCallback, fiwareInfo);
-                }
-            } else { // contentInstance의 등록이 실패하였을때 실행하는 부분 주로 409 에러를 발생시킨다.
+            } else { // retry....
                 registerFunction(attributeName, type, value, registerCallback, aeCreateCallback, fiwareInfo);
             }
         });
@@ -280,7 +274,7 @@ var getFiwareInfo = function(fiwareInfo){
                     }
                 } else { // 기타오류일 경우에는 다시 등록을 요청한다.
                     console.log('******* Retry device registration to YellowTurtle *******');
-                    registerFunction(attributeName, type, value, registerFunction, getFiwareInfo, fiwareInfo);
+                    getFiwareInfo(fiwareInfo);
                 }
             });
         } else { // Fiware에서 잘못된 응답을 받았을 경우는 다시 시도한다.
